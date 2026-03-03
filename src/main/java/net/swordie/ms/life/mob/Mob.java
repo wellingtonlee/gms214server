@@ -1466,10 +1466,13 @@ public class Mob extends Life {
             }
         }
         Set<DropInfo> dropInfoSet = getDrops();
-        // Add consumable/equip drops based on min(charLv, mobLv)
-        level = Math.min(level, getForcedMobStat().getLevel());
-        dropInfoSet.addAll(ItemConstants.getConsumableMobDrops(level));
-        dropInfoSet.addAll(ItemConstants.getEquipMobDrops(job, level));
+        // Only add level-based consumable/equip drops as fallback when mob has no specific item drops from DB
+        boolean hasSpecificItemDrops = dropInfoSet.stream().anyMatch(di -> di.getItemID() > 0);
+        if (!hasSpecificItemDrops) {
+            level = Math.min(level, getForcedMobStat().getLevel());
+            dropInfoSet.addAll(ItemConstants.getConsumableMobDrops(level));
+            dropInfoSet.addAll(ItemConstants.getEquipMobDrops(job, level));
+        }
         // DropRate & MesoRate Increases
         int mostDamageCharDropRate = getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.dropR) : 100;
         int mostDamageCharMesoRate = getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.mesoR) : 100;
@@ -1481,10 +1484,12 @@ public class Mob extends Life {
                 : 0); // Meso Drop Rate
         int totalMesoRate = mesoRateMob + mostDamageCharMesoRate * GameConstants.MOB_MESO_RATE;
         int totalDropRate = dropRateMob + mostDamageCharDropRate * GameConstants.MOB_DROP_RATE;
-        for (Item item : getMostDamageChar().getCashInventory().getItems()) {
-            if (ItemConstants.is2XDropCoupon(item.getItemId())) {
-                totalDropRate *= 2;
-                break;
+        if (mostDamageChar != null) {
+            for (Item item : mostDamageChar.getCashInventory().getItems()) {
+                if (ItemConstants.is2XDropCoupon(item.getItemId())) {
+                    totalDropRate *= 2;
+                    break;
+                }
             }
         }
         getField().drop(getDrops(), getField().getFootholdById(fhID), getPosition(), ownerID, totalMesoRate,

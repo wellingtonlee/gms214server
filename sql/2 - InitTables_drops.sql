@@ -9600,6 +9600,123 @@ values
   (2300200, 4036523, 5000, 1, 1),
 
 
+  # ==========================================
+  # Boss Drops - Magnus Normal (8880000)
+  # ==========================================
+  (8880000, 4310059, 8000, 5, 10),        # Nova Essence
+  (8880000, 4001886, 10000, 1, 1),        # Intense Power Crystal
+  (8880000, 4310029, 8000, 10, 15),       # Spell Trace
+  (8880000, 2433103, 100, 1, 1),          # Boss Consumable
+  (8880000, 2022176, 10000, 5, 10),       # Power Elixir (Tradeable)
+
+  # ==========================================
+  # Boss Drops - Magnus Hard (8880100)
+  # ==========================================
+  (8880100, 4310058, 8000, 3, 7),         # Tyrant Nova Essence
+  (8880100, 4310059, 10000, 10, 20),      # Nova Essence
+  (8880100, 4001886, 10000, 1, 1),        # Intense Power Crystal
+  (8880100, 4310029, 8000, 15, 25),       # Spell Trace
+  (8880100, 2433103, 100, 1, 1),          # Boss Consumable
+  (8880100, 1102481, 200, 1, 1),          # Tyrant Hyades Cloak (Warrior)
+  (8880100, 1102482, 200, 1, 1),          # Tyrant Hermes Cloak (Mage)
+  (8880100, 1102483, 200, 1, 1),          # Tyrant Charon Cloak (Archer)
+  (8880100, 1102484, 200, 1, 1),          # Tyrant Lycaon Cloak (Thief)
+  (8880100, 1102485, 200, 1, 1),          # Tyrant Altair Cloak (Pirate)
+  (8880100, 1072743, 200, 1, 1),          # Tyrant Hyades Boots (Warrior)
+  (8880100, 1072744, 200, 1, 1),          # Tyrant Hermes Boots (Mage)
+  (8880100, 1072745, 200, 1, 1),          # Tyrant Charon Boots (Archer)
+  (8880100, 1072746, 200, 1, 1),          # Tyrant Lycaon Boots (Thief)
+  (8880100, 1072747, 200, 1, 1),          # Tyrant Altair Boots (Pirate)
+  (8880100, 1132174, 200, 1, 1),          # Tyrant Hyades Belt (Warrior)
+  (8880100, 1132175, 200, 1, 1),          # Tyrant Hermes Belt (Mage)
+  (8880100, 1132176, 200, 1, 1),          # Tyrant Charon Belt (Archer)
+  (8880100, 1132177, 200, 1, 1),          # Tyrant Lycaon Belt (Thief)
+  (8880100, 1132178, 200, 1, 1),          # Tyrant Altair Belt (Pirate)
+
+  # ==========================================
+  # Boss Drops - CRA Crimson Queen (8870200)
+  # ==========================================
+  (8870200, 4310029, 8000, 10, 15),       # Spell Trace
+  (8870200, 2433103, 100, 1, 1),          # Boss Consumable
+  (8870200, 2431896, 5000, 1, 3),         # Boss Consumable 2
+  (8870200, 2430690, 100, 1, 1),          # Boss Consumable 3
+  (8870200, 1032136, 500, 1, 1),          # Root Abyss Earring
+  (8870200, 1162009, 2000, 1, 1),         # Root Abyss Badge
+  (8870200, 4021031, 100, 1, 1),          # Ore
+  (8870200, 4021032, 100, 1, 1),          # Ore
+  (8870200, 4021033, 100, 1, 1),          # Ore
+  (8870200, 4021034, 100, 1, 1),          # Ore
+  (8870200, 4021035, 100, 1, 1),          # Ore
+
+  # ==========================================
+  # Boss Drops - CRA Vellum (8870300)
+  # ==========================================
+  (8870300, 4310029, 8000, 10, 15),       # Spell Trace
+  (8870300, 2433103, 100, 1, 1),          # Boss Consumable
+  (8870300, 2431896, 5000, 1, 3),         # Boss Consumable 2
+  (8870300, 2430690, 100, 1, 1),          # Boss Consumable 3
+  (8870300, 1032136, 500, 1, 1),          # Root Abyss Earring
+  (8870300, 1162009, 2000, 1, 1),         # Root Abyss Badge
+  (8870300, 4021031, 100, 1, 1),          # Ore
+  (8870300, 4021032, 100, 1, 1),          # Ore
+  (8870300, 4021033, 100, 1, 1),          # Ore
+  (8870300, 4021034, 100, 1, 1),          # Ore
+  (8870300, 4021035, 100, 1, 1),          # Ore
+
+  # ==========================================
+  # Boss Drops - Lucid Normal (8880140)
+  # ==========================================
+  (8880140, 4001878, 3000, 1, 2),         # Arcane River Droplet Stone
+  (8880140, 4001886, 10000, 1, 1),        # Intense Power Crystal
+  (8880140, 4310029, 8000, 20, 30),       # Spell Trace
+  (8880140, 2433103, 100, 1, 1),          # Boss Consumable
+  (8880140, 2022176, 10000, 10, 20),      # Power Elixir (Tradeable)
+
+  # ==========================================
+  # Boss Drops - Lucid Hard (8880141)
+  # ==========================================
+  (8880141, 4001879, 5000, 2, 4),         # Arcane River Droplet Stone
+  (8880141, 4001886, 10000, 1, 1),        # Intense Power Crystal
+  (8880141, 4310029, 8000, 20, 30),       # Spell Trace
+  (8880141, 2433103, 100, 1, 1),          # Boss Consumable
+  (8880141, 1152196, 200, 1, 1),          # Arcane Umbra Knight Shoulder
+  (8880141, 1152197, 200, 1, 1),          # Arcane Umbra Mage Shoulder
+  (8880141, 1152198, 200, 1, 1),          # Arcane Umbra Archer Shoulder
+  (8880141, 1152199, 200, 1, 1),          # Arcane Umbra Thief Shoulder
+  (8880141, 1152200, 200, 1, 1),          # Arcane Umbra Pirate Shoulder
+  (8880141, 1004808, 200, 1, 1),          # Arcane Umbra Knight Hat
+  (8880141, 1004809, 200, 1, 1),          # Arcane Umbra Mage Hat
+  (8880141, 1004810, 200, 1, 1),          # Arcane Umbra Archer Hat
+  (8880141, 1004811, 200, 1, 1),          # Arcane Umbra Thief Hat
+  (8880141, 1004812, 200, 1, 1),          # Arcane Umbra Pirate Hat
+
+  # ==========================================
+  # Boss Drops - Lotus Normal (8880300)
+  # ==========================================
+  (8880300, 4001878, 3000, 1, 2),         # Arcane River Droplet Stone
+  (8880300, 4001886, 10000, 1, 1),        # Intense Power Crystal
+  (8880300, 4310029, 8000, 20, 30),       # Spell Trace
+  (8880300, 2433103, 100, 1, 1),          # Boss Consumable
+  (8880300, 2022176, 10000, 10, 20),      # Power Elixir (Tradeable)
+
+  # ==========================================
+  # Boss Drops - Lotus Hard (8880301)
+  # ==========================================
+  (8880301, 4001879, 5000, 2, 4),         # Arcane River Droplet Stone
+  (8880301, 4001886, 10000, 1, 1),        # Intense Power Crystal
+  (8880301, 4310029, 8000, 20, 30),       # Spell Trace
+  (8880301, 2433103, 100, 1, 1),          # Boss Consumable
+  (8880301, 1053063, 200, 1, 1),          # Arcane Umbra Knight Suit
+  (8880301, 1053064, 200, 1, 1),          # Arcane Umbra Mage Suit
+  (8880301, 1053065, 200, 1, 1),          # Arcane Umbra Archer Suit
+  (8880301, 1053066, 200, 1, 1),          # Arcane Umbra Thief Suit
+  (8880301, 1053067, 200, 1, 1),          # Arcane Umbra Pirate Suit
+  (8880301, 1073158, 200, 1, 1),          # Arcane Umbra Knight Shoes
+  (8880301, 1073159, 200, 1, 1),          # Arcane Umbra Mage Shoes
+  (8880301, 1073160, 200, 1, 1),          # Arcane Umbra Archer Shoes
+  (8880301, 1073161, 200, 1, 1),          # Arcane Umbra Thief Shoes
+  (8880301, 1073162, 200, 1, 1),          # Arcane Umbra Pirate Shoes
+
   # Dummy
   (0, 0, 0, 0, 0);
 

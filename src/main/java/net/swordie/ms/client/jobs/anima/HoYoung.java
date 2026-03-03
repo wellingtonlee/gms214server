@@ -45,7 +45,7 @@ public class HoYoung extends Job {
 
 
     // Beginner Skills (Anima Thief)
-    public static final int RETURN_TO_CHEONGWOON = 160001074; // TODO: Not handled.
+    public static final int RETURN_TO_CHEONGWOON = 160001074;
     public static final int SPIRIT_AFFINITY = 160000000;
     public static final int SHAPESHIFT = 160001075;
     public static final int FIEND_SEAL = 160000076;
@@ -571,6 +571,9 @@ public class HoYoung extends Job {
         Summon summon = null;
 
         switch (skillId) {
+            case RETURN_TO_CHEONGWOON:
+                chr.warp(chr.getField().getReturnMap());
+                break;
             case SHAPESHIFT:
                 boolean enable;
                 int qid = QuestConstants.SHAPESHIFT_QR;
@@ -585,7 +588,6 @@ public class HoYoung extends Job {
                 chr.addSkillCoolTime(SHAPESHIFT, 10000);
                 break;
             case RITUAL_FAN_ACCELERATION:
-                handleSpellGauge(MAX_TALISMAN_ENERGY, MAX_SCROLL_ENERGY); // TODO: REMOVE, ONLY FOR DEBUG
                 o1.nValue = si.getValue(SkillStat.x, slv);
                 o1.nReason = skillId;
                 o1.tTerm = si.getValue(SkillStat.time, slv);

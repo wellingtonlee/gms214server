@@ -234,10 +234,17 @@ public class Kanna extends Job {
         Option o1 = new Option();
 
         Equip fan = (Equip) chr.getEquippedInventory().getItemBySlot(BodyPart.HakuFan.getVal());
+        int fanMadBonus = fan != null ? (int) (si.getValue(x, slv) * (fan.getiMad() / 100.0f)) : 0;
         o1.rOption = skillID;
-        o1.nOption = fan != null ? (int) (si.getValue(x, slv) * (fan.getiMad() / 100.0f)) : 0; // TODO: add to dmg calc?
+        o1.nOption = fanMadBonus;
         o1.tOption = 0;
         tsm.putCharacterStatValue(HakuBlessing, o1);
+        // Apply the fan's magic attack bonus to actual damage calculation via IndieMAD
+        Option o2 = new Option();
+        o2.nReason = skillID;
+        o2.nValue = fanMadBonus;
+        o2.tTerm = 0;
+        tsm.putCharacterStatValue(IndieMAD, o2);
         tsm.sendSetStatPacket();
     }
 

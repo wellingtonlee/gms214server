@@ -147,7 +147,7 @@ public class AttackHandler {
                 } else if (mob.getHp() > 0) {
                     long totalDamage = 0;
                     for (long dmg : mai.damages) {
-                        //totalDamage += dmg;
+                        totalDamage += dmg;
                         mob.damage(chr, dmg);
                         mob.handleDamageReflect(chr, skillID, dmg);
                     }

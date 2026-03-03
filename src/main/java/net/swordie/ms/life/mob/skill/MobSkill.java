@@ -327,7 +327,7 @@ public class MobSkill {
                 break;
             case Damage:
                 boolean fixDamR = msi.getSkillStatIntValue(MobSkillStat.fixDamR) > 0;
-                int damage = 5000;
+                int damage = msi.getSkillStatIntValue(x);
 
                 if (damage != 0)
                     chars.stream().filter(chra -> !chra.getTemporaryStatManager().hasStat(CharacterTemporaryStat.NotDamaged)).forEach(chra -> chra.damage((fixDamR ? chra.getHPPerc(damage) : damage), true));

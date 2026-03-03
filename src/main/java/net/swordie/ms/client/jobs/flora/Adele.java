@@ -49,7 +49,7 @@ public class Adele extends Job {
     // Beginner
     public static final int ARTISTIC_RECALL = 150021000;
     public static final int MAGIC_CONVERSION = 150000079;
-    public static final int RECALLING_GREATNESS = 150020006; // TODO: Level this up periodically
+    public static final int RECALLING_GREATNESS = 150020006;
 
     // First Job
     public static final int MAGIC_DISPATCH = 151001001;
@@ -98,10 +98,15 @@ public class Adele extends Job {
     public static final int INFINITY_BLADE = 400011108;
     public static final int LEGACY_RESTORATION = 400011109;
 
+    private static final int RECALLING_GREATNESS_MAX_LEVEL = 30;
+    private static final int RECALLING_GREATNESS_INTERVAL_MS = 600_000; // 10 minutes per level
+
     private Map<Integer, Integer> capeAtoms = new HashMap<>();
     private List<Summon> summonList = new ArrayList<>();
     private int capeCounter = 0;
     private ScheduledFuture aetherTimer;
+    private ScheduledFuture recallingGreatnessTimer;
+    private int recallingGreatnessLevel = 0;
 
     private boolean isTriggerSkill(int skillID) {
         return switch (skillID) {
@@ -129,6 +134,46 @@ public class Adele extends Job {
         }
     }
 
+    public void clearRecallingGreatnessTimer() {
+        if (recallingGreatnessTimer != null) {
+            recallingGreatnessTimer.cancel(true);
+        }
+    }
+
+    private void incrementRecallingGreatness() {
+        if (chr == null || chr.getField() == null) {
+            return;
+        }
+        if (recallingGreatnessLevel >= RECALLING_GREATNESS_MAX_LEVEL) {
+            clearRecallingGreatnessTimer();
+            return;
+        }
+        recallingGreatnessLevel++;
+        applyRecallingGreatness();
+    }
+
+    private void applyRecallingGreatness() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int level = recallingGreatnessLevel;
+        // Each level provides +1 All Stat and +1 ATT/MATT
+        Option oStat = new Option();
+        oStat.nReason = RECALLING_GREATNESS;
+        oStat.nValue = level;
+        oStat.tTerm = 0;
+        tsm.putCharacterStatValue(CharacterTemporaryStat.IndieSTR, oStat);
+        tsm.putCharacterStatValue(CharacterTemporaryStat.IndieDEX, oStat);
+        tsm.putCharacterStatValue(CharacterTemporaryStat.IndieINT, oStat);
+        tsm.putCharacterStatValue(CharacterTemporaryStat.IndieLUK, oStat);
+
+        Option oAtk = new Option();
+        oAtk.nReason = RECALLING_GREATNESS;
+        oAtk.nValue = level;
+        oAtk.tTerm = 0;
+        tsm.putCharacterStatValue(CharacterTemporaryStat.IndiePAD, oAtk);
+        tsm.putCharacterStatValue(CharacterTemporaryStat.IndieMAD, oAtk);
+        tsm.sendSetStatPacket();
+    }
+
     public void setCapeCounter(int forceAtomKeyCounter) {
         this.capeCounter = forceAtomKeyCounter;
     }
@@ -152,8 +197,12 @@ public class Adele extends Job {
                 }
             }
             if (chr.hasSkill(151100017)) {
-            aetherTimer = EventManager.addFixedRateEvent(this::autoModifyAether, 1000, 3000);
-        }
+                aetherTimer = EventManager.addFixedRateEvent(this::autoModifyAether, 1000, 3000);
+            }
+            if (chr.hasSkill(RECALLING_GREATNESS)) {
+                recallingGreatnessTimer = EventManager.addFixedRateEvent(
+                        this::incrementRecallingGreatness, RECALLING_GREATNESS_INTERVAL_MS, RECALLING_GREATNESS_INTERVAL_MS);
+            }
         }
     }
 
