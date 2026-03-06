@@ -407,6 +407,7 @@ public class LoginHandler {
                 Char chr = acc.getCharById(charId);
                 if (chr != null) {
                     acc.removeChar(chr);
+                    DatabaseManager.deleteFromDB(chr);
                     c.write(Login.sendDeleteCharacterResult(charId, LoginType.Success));
                 } else {
                     c.write(Login.sendDeleteCharacterResult(charId, LoginType.UnauthorizedUser));
@@ -415,7 +416,6 @@ public class LoginHandler {
                 c.write(Login.selectCharacterResult(LoginType.IncorrectPassword, (byte) 0, 0, 0));
             }
         }
-        // TODO: Update database when deleting a character.
     }
 
     @Handler(op = InHeader.CLIENT_ERROR)

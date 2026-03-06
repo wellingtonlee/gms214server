@@ -943,19 +943,30 @@ public class SkillHandler {
                 return;
             }
         }
+        if (msr.getReqMeso() > 0) {
+            chr.deductMoney(msr.getReqMeso());
+        }
         int reqSkillID = msr.getReqSkillID();
         Item crafted = null;
         MakingSkillRecipe.TargetElem target = new MakingSkillRecipe.TargetElem();
         MakingSkillResult result = MakingSkillResult.CRAFTING_FAILED;
         if (Randomizer.nextInt(100) < MakingSkillRecipe.getSuccessProb(reqSkillID, msr.getRecommandedSkillLevel(), chr.getMakingSkillLevel(reqSkillID)) || recipeID / 10000 <= 9201) {
-            int rand = Randomizer.nextInt(100);
             List<MakingSkillRecipe.TargetElem> targets = msr.getTarget();
-            while (true) {
-                target = targets.get(Randomizer.rand(0, targets.size() - 1));
-                if (target.getProbWeight() >= rand) {
-                    break;
-                } else {
-                    rand = Randomizer.nextInt(100);
+            int totalWeight = targets.stream().mapToInt(MakingSkillRecipe.TargetElem::getProbWeight).sum();
+            if (totalWeight <= 0) {
+                target = targets.get(0);
+            } else {
+                int rand = Randomizer.nextInt(totalWeight);
+                int cumulative = 0;
+                for (MakingSkillRecipe.TargetElem t : targets) {
+                    cumulative += t.getProbWeight();
+                    if (rand < cumulative) {
+                        target = t;
+                        break;
+                    }
+                }
+                if (target.getItemID() == 0) {
+                    target = targets.get(0);
                 }
             }
             crafted = ItemData.getItemDeepCopy(target.getItemID(), Randomizer.isSuccess(chr.getMakingSkillLevel(reqSkillID) * 2));
@@ -997,6 +1008,9 @@ public class SkillHandler {
                     break;
             }
             chr.addTraitExp(trait, (int) Math.pow(2, chr.getMakingSkillLevel(reqSkillID) + 2));
+        }
+        if (msr.getCoolTimeSec() > 0) {
+            chr.addSkillCoolTime(recipeID, msr.getCoolTimeSec() * 1000);
         }
         chr.getField().broadcastPacket(FieldPacket.makingSkillResult(chr.getId(), recipeID, result, target, incSkillProficiency));
         chr.write(UserPacket.effect(Effect.gainQuestItem(itemResult)));

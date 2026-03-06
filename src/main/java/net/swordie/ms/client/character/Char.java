@@ -3309,7 +3309,12 @@ public class Char {
      * @param fieldId the ID of the field to warp to
      */
     public void warp(int fieldId) {
-        warp(getOrCreateFieldByCurrentInstanceType(fieldId));
+        Field field = getOrCreateFieldByCurrentInstanceType(fieldId);
+        if (field == null) {
+            chatMessage("Unable to warp to map " + fieldId + ".");
+            return;
+        }
+        warp(field);
     }
 
     /**
@@ -3320,6 +3325,10 @@ public class Char {
      */
     public void warp(int fieldId, int portalId) {
         Field field = getOrCreateFieldByCurrentInstanceType(fieldId);
+        if (field == null) {
+            chatMessage("Unable to warp to map " + fieldId + ".");
+            return;
+        }
         Portal portal = field.getPortalByID(portalId);
         if (portal == null) {
             portal = field.getDefaultPortal();

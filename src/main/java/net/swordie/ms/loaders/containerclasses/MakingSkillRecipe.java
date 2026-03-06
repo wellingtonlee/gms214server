@@ -231,9 +231,16 @@ public class MakingSkillRecipe {
                 return false;
             }
         }
-        // TODO: handle check if the player have req items to craft.
-        // TODO: handle cooldown repices.
-
+        for (Tuple<Integer, Integer> ing : getIngredient()) {
+            if (!chr.hasItemCount(ing.getLeft(), ing.getRight())) {
+                chr.write(UserLocal.noticeMsg("You don't have the required materials.", true));
+                return false;
+            }
+        }
+        if (getCoolTimeSec() > 0 && chr.hasSkillOnCooldown(getRecipeID())) {
+            chr.write(UserLocal.noticeMsg("This recipe is on cooldown.", true));
+            return false;
+        }
         if (chr.getMoney() >= getReqMeso()) {
             return true;
         }

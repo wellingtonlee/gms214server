@@ -256,6 +256,9 @@ public class ItemUpgradeHandler {
             boolean reset = vals.getOrDefault(ScrollStat.reset, 0) + vals.getOrDefault(ScrollStat.perfectReset, 0) != 0;
             boolean useTuc = !recover && !reset;
             int chance = vals.getOrDefault(ScrollStat.success, 100);
+            if (equip.hasAttribute(EquipAttribute.LuckyDay)) {
+                chance = Math.min(100, chance + 10);
+            }
             int curse = vals.getOrDefault(ScrollStat.cursed, 0);
             success = Util.succeedProp(chance);
             if (success) {

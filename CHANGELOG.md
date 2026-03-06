@@ -2,7 +2,41 @@
 
 All notable changes to the GMS v214 server are documented in this file.
 
-## [Unreleased]
+## [Unreleased] — Round 2
+
+### Critical Bug Fixes
+
+- **Fixed thread-unsafe user tracking set** — `Server.java` used a plain `HashSet<Integer>` for tracking logged-in users, accessed from multiple client threads simultaneously. Under load, this could cause `ConcurrentModificationException` crashes. Changed to `ConcurrentHashMap.newKeySet()` for thread-safe concurrent access.
+  - File: `src/main/java/net/swordie/ms/Server.java`
+
+- **Fixed character deletion not persisting to database** — Deleting a character in the login screen removed it from the in-memory account but never called `DatabaseManager.deleteFromDB()`. The character would reappear after server restart.
+  - File: `src/main/java/net/swordie/ms/handlers/LoginHandler.java`
+
+- **Added null-safe map warp validation** — `Char.warp(int fieldId)` and `warp(int fieldId, int portalId)` could NPE when given an invalid or nonexistent field ID. Now checks for null before proceeding and sends a chat message to the player instead of crashing.
+  - File: `src/main/java/net/swordie/ms/client/character/Char.java`
+
+### Scroll System
+
+- **Fixed Lucky Day scroll not boosting success rate** — The Lucky Day attribute was correctly applied to equipment (via `EquipAttribute.LuckyDay`) but the scroll upgrade handler never checked for it when computing success probability. Now adds +10% success rate (capped at 100%) when Lucky Day is active.
+  - File: `src/main/java/net/swordie/ms/handlers/item/ItemUpgradeHandler.java`
+
+### Crafting System
+
+- **Added ingredient pre-check to crafting validation** — `MakingSkillRecipe.isAbleToBeUsedBy()` previously had a TODO for checking if the player had required materials. The crafting UI could show recipes as available when materials were missing. Now validates all ingredients before allowing the craft attempt.
+  - File: `src/main/java/net/swordie/ms/loaders/containerclasses/MakingSkillRecipe.java`
+
+- **Fixed crafting not deducting meso cost** — Recipes with a meso requirement (`reqMeso > 0`) were validated in `isAbleToBeUsedBy()` but the handler never actually deducted the mesos after crafting. Now deducts mesos alongside ingredient consumption.
+  - File: `src/main/java/net/swordie/ms/handlers/user/SkillHandler.java`
+
+- **Fixed infinite loop in crafting target selection** — The reward target selection used a `while(true)` loop that randomly picked items and checked if their `probWeight >= rand`. With low-weight targets, this could loop forever. Replaced with proper cumulative weighted random selection that always terminates.
+  - File: `src/main/java/net/swordie/ms/handlers/user/SkillHandler.java`
+
+- **Implemented recipe cooldowns** — Recipes with `coolTimeSec > 0` were never enforced. Now applies a skill cooldown timer after crafting and checks for active cooldowns before allowing re-craft.
+  - Files: `MakingSkillRecipe.java`, `SkillHandler.java`
+
+---
+
+## [Unreleased] — Round 1
 
 ### Boss Mechanics
 

@@ -59,7 +59,7 @@ public class Server extends Properties {
 
 	private List<World> worldList = new ArrayList<>();
 	private Map<String, Tuple<Integer, FileTime>> authTokens = new ConcurrentHashMap<>();
-	private Set<Integer> users = new HashSet<>(); // just save the ids, no need to save the references
+	private Set<Integer> users = ConcurrentHashMap.newKeySet(); // thread-safe for concurrent login/logout
 	private CashShop cashShop;
 	private Set<ScheduledFuture> shutdownFutures = new HashSet<>();
 	private boolean opcodeEnc = true;
