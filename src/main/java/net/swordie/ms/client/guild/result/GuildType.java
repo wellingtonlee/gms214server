@@ -1,5 +1,6 @@
 package net.swordie.ms.client.guild.result;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.util.Util;
 
 import java.io.File;
@@ -198,7 +199,7 @@ public enum GuildType {
     }
 
     public static void main(String[] args) {
-        File file = new File("D:\\SwordieMS\\SwordieUTD\\src\\main\\java\\net\\swordie\\ms\\client\\guild\\result\\GuildType.java");
+        File file = new File(ServerConstants.DIR + "/src/main/java/net/swordie/ms/client/guild/result/GuildType.java");
         int change = -1;
         try(Scanner s = new Scanner(file)) {
             while (s.hasNextLine()) {

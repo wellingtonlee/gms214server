@@ -1,5 +1,6 @@
 package net.swordie.ms.client.party;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.util.Util;
 
 import java.io.File;
@@ -187,7 +188,7 @@ public enum PartyType {
     }
 
     public static void main(String[] args) {
-        File file = new File("C:\\v207\\src\\main\\java\\net\\swordie\\ms\\client\\party\\PartyType.java");
+        File file = new File(ServerConstants.DIR + "/src/main/java/net/swordie/ms/client/party/PartyType.java");
         int change = -3;
         boolean check = false;
         PartyType checkOp = null;

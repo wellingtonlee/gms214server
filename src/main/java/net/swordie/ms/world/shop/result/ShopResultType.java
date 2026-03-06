@@ -1,5 +1,6 @@
 package net.swordie.ms.world.shop.result;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.util.Util;
 
 import java.io.File;
@@ -69,7 +70,7 @@ public enum ShopResultType {
 
 
     public static void main(String[] args) {
-        File file = new File("D:\\dev213MS\\dev213UTD\\src\\main\\java\\net\\dev213\\ms\\handlers\\header\\OutHeader.java");
+        File file = new File(ServerConstants.DIR + "/src/main/java/net/swordie/ms/handlers/header/OutHeader.java");
         int change = 1;
         boolean check = false;
         ShopResultType checkOp = null;

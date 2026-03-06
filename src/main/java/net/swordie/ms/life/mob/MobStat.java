@@ -195,7 +195,7 @@ public enum MobStat {
 //            }
 //            System.out.printf("%s(%d),%n", header, val);
 //        }
-        File file = new File(ServerConstants.DIR + "\\src\\main\\java\\net\\swordie\\ms\\life\\mob\\MobStat.java");
+        File file = new File(ServerConstants.DIR + "/src/main/java/net/swordie/ms/life/mob/MobStat.java");
         int change = 1;
         MobStat checkOp = null;
         try(Scanner s = new Scanner(file)) {

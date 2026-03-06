@@ -1,5 +1,6 @@
 package net.swordie.ms.handlers.header;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.util.Util;
 
 import java.io.File;
@@ -2198,7 +2199,7 @@ public enum OutHeader {
     }
 
     public static void main(String[] args) {
-        File file = new File("D:\\SwordieMS\\SwordieUTD\\src\\main\\java\\net\\swordie\\ms\\handlers\\header\\OutHeader.java");
+        File file = new File(ServerConstants.DIR + "/src/main/java/net/swordie/ms/handlers/header/OutHeader.java");
         int change = 1;
         boolean check = false;
         OutHeader checkOp = null;

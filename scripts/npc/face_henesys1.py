@@ -1,5 +1,5 @@
 import os.path
-path = "C:/Users/Downloads/v207-master/v207-master/wz/Character.wz/Face"
+path = os.path.join(os.getcwd(), "wz", "Character.wz", "Face")
 files = os.listdir(path)
 face = []
 for x in files:
