@@ -1,0 +1,29 @@
+# Build output
+bin/
+target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# Game data (too large for repo)
+wz/
+dat/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Heap dumps
+heapdumps/
+*.hprof
