@@ -62,8 +62,7 @@ public class CatchingScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
             try {
                 runnable.run();
             } catch (Exception e) {
-                log.error(String.format("error in executing: %s. It will no longer be run!", runnable));
-                e.printStackTrace();
+                log.error(String.format("error in executing: %s. It will no longer be run!", runnable), e);
 
                 // and re throw it so that the Executor also gets this error so that it can do what it would
                 // usually do
@@ -85,8 +84,7 @@ public class CatchingScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
             try {
                 return callable.call();
             } catch (Exception e) {
-                log.error(String.format("error in executing: %s. It will no longer be run!", callable));
-                e.printStackTrace();
+                log.error(String.format("error in executing: %s. It will no longer be run!", callable), e);
 
                 // and re throw it so that the Executor also gets this error so that it can do what it would
                 // usually do

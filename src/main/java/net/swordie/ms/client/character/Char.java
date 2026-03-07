@@ -6005,7 +6005,7 @@ public class Char {
             byte[] image = am.generateImage(196, 44, Color.BLACK, AntiMacro.getRandomColor());
             getClient().write(WvsContext.antiMacroResult(image, AntiMacro.AntiMacroResultType.AntiMacroRes.getVal(), AntiMacro.AntiMacroType.AntiMacroFieldRequest.getVal()));
         } catch (IOException | FontFormatException e) {
-            e.printStackTrace();
+            log.error("Failed to generate anti-macro image", e);
 
             return false;
         }

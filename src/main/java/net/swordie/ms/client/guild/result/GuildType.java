@@ -2,6 +2,7 @@ package net.swordie.ms.client.guild.result;
 
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.util.Util;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -184,6 +185,7 @@ public enum GuildType {
     No(-1),
     ;
 
+    private static final Logger log = Logger.getLogger(GuildType.class);
     private byte val;
 
     GuildType(int val) {
@@ -226,7 +228,7 @@ public enum GuildType {
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read guild type properties file", e);
         }
     }
 }

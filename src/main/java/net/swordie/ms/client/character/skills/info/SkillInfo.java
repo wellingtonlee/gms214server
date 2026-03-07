@@ -150,7 +150,7 @@ public class SkillInfo {
             } catch (ScriptException e) {
                 log.error(String.format("Error when parsing: skill %d, level %d, skill stat %s, tried to eval %s.",
                         getSkillId(), slv, skillStat, original));
-                e.printStackTrace();
+                log.error(String.format("Failed to evaluate skill expression for skill %d, level %d", getSkillId(), slv), e);
             }
         }
         lvCache.put(skillStat, result);

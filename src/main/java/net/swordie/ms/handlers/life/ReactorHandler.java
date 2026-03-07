@@ -39,7 +39,7 @@ public class ReactorHandler {
             try {
                 chr.getScriptManager().getInvocableByType(ScriptType.Reactor).invokeFunction("action", reactor, type);
             } catch (ScriptException | NoSuchMethodException e) {
-                e.printStackTrace();
+                log.error("Failed to invoke reactor hit action script", e);
             }
         } else {
             chr.getScriptManager().startScript(templateID, objID, action, ScriptType.Reactor);
@@ -68,7 +68,7 @@ public class ReactorHandler {
             try {
                 chr.getScriptManager().getInvocableByType(ScriptType.Reactor).invokeFunction("action", 0);
             } catch (ScriptException | NoSuchMethodException e) {
-                e.printStackTrace();
+                log.error("Failed to invoke reactor click action script", e);
             }
         } else {
             chr.getScriptManager().startScript(templateID, objID, action, ScriptType.Reactor);

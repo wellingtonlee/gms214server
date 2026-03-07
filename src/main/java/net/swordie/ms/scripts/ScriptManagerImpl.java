@@ -67,7 +67,7 @@ import net.swordie.ms.world.field.obtacleatom.ObtacleAtomInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleInRowInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleRadianInfo;
 import net.swordie.ms.world.shop.NpcShopDlg;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -106,7 +106,7 @@ public class ScriptManagerImpl implements ScriptManager {
     public static final String QUEST_START_SCRIPT_END_TAG = "s";
     public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
     private static final String INTENDED_NPE_MSG = "Intended NPE by forceful script stop.";
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(ScriptManagerImpl.class);
 
     private static final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName(SCRIPT_ENGINE_NAME);
 
@@ -295,7 +295,7 @@ public class ScriptManagerImpl implements ScriptManager {
             fileReadLock.lock();
             script.append(Util.readFile(dir, Charset.defaultCharset()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(String.format("Failed to read script file %s", dir), e);
             lockInGameUI(false); // so players don't get stuck if a script fails
         } finally {
             fileReadLock.unlock();
@@ -305,8 +305,7 @@ public class ScriptManagerImpl implements ScriptManager {
             cs.eval(bindings);
         } catch (ScriptException e) {
             if (!e.getMessage().contains(INTENDED_NPE_MSG)) {
-                log.error(String.format("Unable to compile script %s!", name));
-                e.printStackTrace();
+                log.error(String.format("Unable to compile script %s!", name), e);
                 lockInGameUI(false); // so players don't get stuck if a script fails
             }
         } finally {
@@ -951,7 +950,7 @@ public class ScriptManagerImpl implements ScriptManager {
     }
 
     public static void test(int[] a) {
-        System.out.println(Arrays.toString(a));
+        log.debug(Arrays.toString(a));
     }
 
     public void giveSkill(int skillId) {
@@ -3015,7 +3014,7 @@ public class ScriptManagerImpl implements ScriptManager {
             func = getClass().getMethod(methodName, classes);
             return func.invoke(invokeOn, args);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            log.error("Failed to invoke method " + methodName, e);
         }
         return null;
     }
@@ -3457,6 +3456,6 @@ public class ScriptManagerImpl implements ScriptManager {
     }
 
     public void printStyle(Cosmetic cosmetic) {
-        System.out.printf("id: %d, name: %s", cosmetic.getId(), cosmetic.getName());
+        log.debug(String.format("id: %d, name: %s", cosmetic.getId(), cosmetic.getName()));
     }
 }

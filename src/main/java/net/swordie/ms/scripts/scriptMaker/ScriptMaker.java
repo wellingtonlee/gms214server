@@ -96,7 +96,7 @@ public class ScriptMaker {
                         nsd.setSelectNpcItemID(inPacket.decodeInt());
                         int npcTemplateId = inPacket.decodeInt();
                         if (NpcData.getShopById(nsd.getNpcTemplateID()) != null || shopIds.contains(nsd.getNpcTemplateID())) {
-                            System.out.println("Already have shop " + nsd.getNpcTemplateID());
+                            log.debug("Already have shop " + nsd.getNpcTemplateID());
                             continue;
                         }
                         shopIds.add(nsd.getNpcTemplateID());
@@ -190,7 +190,7 @@ public class ScriptMaker {
                             // end sub
                             boolean buyBack = inPacket.decodeByte() != 0;
                             if (buyBack) {
-                                System.err.println("Too lazy to decode items in this");
+                                log.warn("Too lazy to decode items in this");
                             }
                             if (!ItemConstants.getRechargeablesList().contains(nsi.getItemID())) {
                                 sb.append(String.format("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +
@@ -206,7 +206,7 @@ public class ScriptMaker {
                 }
             }
         }
-        System.out.println(sb);
+        log.debug(sb);
     }
 
 
@@ -361,9 +361,9 @@ public class ScriptMaker {
             }
         } catch (EOFException e) {
             // no length specified, so this is intended.
-            System.out.println("End of file.");
+            log.debug("End of file.");
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to read script file", e);
         }
         return inPackets;
     }
@@ -474,7 +474,7 @@ public class ScriptMaker {
     public void createScript(boolean mayOverride) {
         if (scriptName == null || "".equals(scriptName) || stringBuilder == null || stringBuilder.toString().length() == 0) {
             if (antiSpam) {
-                System.err.println("No script to create!");
+                log.warn("No script to create!");
                 antiSpam = true;
             }
             reset();
@@ -511,10 +511,10 @@ public class ScriptMaker {
                 break;
         }
         if (writtenFiles.contains(file.getName()) || (file.exists()) && !mayOverride) {
-            System.out.println("File already exists! Making a duplicate and printing it here.");
-            System.out.println(getType().getDir() + "/" + getScriptName());
-            System.out.println(String.format("# id %d (%s), field %d", id, name, getFieldId()));
-            System.out.println(stringBuilder.toString());
+            log.info("File already exists! Making a duplicate and printing it here.");
+            log.info(getType().getDir() + "/" + getScriptName());
+            log.info(String.format("# id %d (%s), field %d", id, name, getFieldId()));
+            log.info(stringBuilder.toString());
             int idx = 0;
             while (!file.exists() || writtenFiles.contains(file.getName())) {
                 file = new File(String.format("%s/%s/%s_%d.py",
@@ -525,9 +525,9 @@ public class ScriptMaker {
         try (FileWriter fw = new FileWriter(file)) {
             fw.write(String.format("# id %d (%s), field %d%n", id, name, getFieldId()));
             fw.write(stringBuilder.toString());
-            System.out.println("Created script " + getType().getDir() + "/" + getScriptName());
+            log.info("Created script " + getType().getDir() + "/" + getScriptName());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to write script file " + getType().getDir() + "/" + getScriptName(), e);
         }
         reset();
     }

@@ -1,6 +1,7 @@
 package net.swordie.ms.util;
 
 import net.swordie.ms.ServerConstants;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -20,6 +21,7 @@ import java.util.Map;
  * Created on 11/17/2017.
  */
 public class XMLApi {
+    private static final Logger log = Logger.getLogger(XMLApi.class);
 
     private Node root;
 
@@ -83,13 +85,13 @@ public class XMLApi {
         try {
             dBuilder = dbFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            log.error("Failed to create XML document builder", e);
         }
         Document doc = null;
         try {
             doc = dBuilder.parse(file);
         } catch (SAXException | IOException e) {
-            e.printStackTrace();
+            log.error("Failed to parse XML file: " + file.getPath(), e);
         }
         return doc;
     }

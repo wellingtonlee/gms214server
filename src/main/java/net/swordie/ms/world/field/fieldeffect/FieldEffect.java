@@ -2,11 +2,13 @@ package net.swordie.ms.world.field.fieldeffect;
 
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.life.mob.Mob;
+import org.apache.log4j.Logger;
 
 /**
  * Created on 3/26/2018.
  */
 public class FieldEffect {
+    private static final Logger log = Logger.getLogger(FieldEffect.class);
 
     private FieldEffectType fieldEffectType;
     private String string;
@@ -37,7 +39,7 @@ public class FieldEffect {
                 break;
             case Object:
                 outPacket.encodeString(getString());// String
-                System.out.println(getString());
+                log.debug(getString());
                 break;
             case ObjectDisable:
                 outPacket.encodeString(getString());// String

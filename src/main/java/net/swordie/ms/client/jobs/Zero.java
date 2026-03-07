@@ -40,6 +40,7 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.QuestData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +52,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Zero extends Job {
+    private static final Logger log = Logger.getLogger(Zero.class);
 
     public static final int DUAL_COMBAT = 100001270;
     public static final int DUAL_COMBAT_2 = 100000282;
@@ -284,7 +286,7 @@ public class Zero extends Job {
                 ls.setLevel(linkSkillLevel);
                 ls.setOriginID(chr.getId());
             }
-            System.err.println(linkSkillID + " " + linkSkillLevel);
+            log.debug(linkSkillID + " " + linkSkillLevel);
         }
     }
 

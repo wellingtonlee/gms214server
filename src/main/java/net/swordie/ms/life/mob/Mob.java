@@ -1384,8 +1384,11 @@ public class Mob extends Life {
 
     public synchronized void die(boolean drops) {
         Field field = getField();
+        if (field == null) {
+            return;
+        }
 
-        getField().removeLife(getObjectId());
+        field.removeLife(getObjectId());
         distributeExp();
         if (getCopyMob() != null) {
             getCopyMob().die(false);
@@ -1403,7 +1406,7 @@ public class Mob extends Life {
                 chr.getAccount().getMonsterCollection().addMobAndUpdateClient(getTemplateId(), chr);
             }
         }
-        getField().broadcastPacket(MobPool.leaveField(getObjectId(), DeathType.ANIMATION_DEATH));
+        field.broadcastPacket(MobPool.leaveField(getObjectId(), DeathType.ANIMATION_DEATH));
         getDamageDone().clear();
         if (field.canSpawnElite() && getEliteType() == 0 && !isNotRespawnable() &&
                 Util.succeedProp(GameConstants.ELITE_MOB_SPAWN_CHANCE, 1000)) {
@@ -1433,8 +1436,12 @@ public class Mob extends Life {
             } else {
                 msg = "The dark energy is still here. It's making the place quite grim.";
             }
-            getField().broadcastPacket(WvsContext.weatherEffectNotice(WeatherEffNoticeType.EliteBoss, msg, 8000)); // 8 seconds
+            field.broadcastPacket(WvsContext.weatherEffectNotice(WeatherEffNoticeType.EliteBoss, msg, 8000)); // 8 seconds
         } else if (getEliteType() == 3) {
+            // Elite boss drops bonus reward box on death
+            DropInfo eliteReward = new DropInfo(2028162, 1000); // Elite Boss Reward Box
+            field.drop(eliteReward, getPosition(),
+                    getPosition().deepCopy(), getMostDamageChar() != null ? getMostDamageChar().getId() : 0, false);
             field.broadcastPacket(FieldPacket.eliteState(EliteState.None, true, null, null, null));
             field.setEliteState(EliteState.None);
         }
@@ -1449,6 +1456,10 @@ public class Mob extends Life {
     }
 
     public void dropDrops() {
+        Field field = getField();
+        if (field == null) {
+            return;
+        }
         int ownerID = 0;
         Char mostDamageChar = getMostDamageChar();
         int level = mostDamageChar == null ? 0 : mostDamageChar.getLevel();
@@ -1459,12 +1470,13 @@ public class Mob extends Life {
         }
         int fhID = getFh();
         if (fhID == 0) {
-            Foothold fhBelow = getField().findFootHoldBelow(getPosition());
+            Foothold fhBelow = field.findFootHoldBelow(getPosition());
             if (fhBelow != null) {
                 fhID = fhBelow.getId();
             }
         }
-        Set<DropInfo> dropInfoSet = getDrops();
+        // Copy drops to avoid mutating the mob's template drop set
+        Set<DropInfo> dropInfoSet = new HashSet<>(getDrops());
         // Only add level-based consumable/equip drops as fallback when mob has no specific item drops from DB
         boolean hasSpecificItemDrops = dropInfoSet.stream().anyMatch(di -> di.getItemID() > 0);
         if (!hasSpecificItemDrops) {
@@ -1473,8 +1485,8 @@ public class Mob extends Life {
             dropInfoSet.addAll(ItemConstants.getEquipMobDrops(job, level));
         }
         // DropRate & MesoRate Increases
-        int mostDamageCharDropRate = getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.dropR) : 100;
-        int mostDamageCharMesoRate = getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.mesoR) : 100;
+        int mostDamageCharDropRate = mostDamageChar != null ? mostDamageChar.getTotalStat(BaseStat.dropR) : 100;
+        int mostDamageCharMesoRate = mostDamageChar != null ? mostDamageChar.getTotalStat(BaseStat.mesoR) : 100;
         int dropRateMob = (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure)
                 ? getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).yOption
                 : 0); // Item Drop Rate
@@ -1491,8 +1503,20 @@ public class Mob extends Life {
                 }
             }
         }
-        getField().drop(getDrops(), getField().getFootholdById(fhID), getPosition(), ownerID, totalMesoRate,
+        field.drop(dropInfoSet, field.getFootholdById(fhID), getPosition(), ownerID, totalMesoRate,
                 totalDropRate, getExplosiveReward() != 0);
+        // Boss guaranteed drops — always drop regardless of RNG
+        List<DropInfo> guaranteedDrops = MobConstants.getBossGuaranteedDrops(getTemplateId());
+        if (guaranteedDrops != null) {
+            Foothold fh = field.getFootholdById(fhID);
+            for (DropInfo bdi : guaranteedDrops) {
+                if (bdi.willDrop(100)) {
+                    field.drop(bdi, getPosition(),
+                            fh != null ? new Position(getPosition().getX(), fh.getYFromX(getPosition().getX())) : getPosition(),
+                            ownerID, false);
+                }
+            }
+        }
     }
 
     public Map<Char, Long> getDamageDone() {

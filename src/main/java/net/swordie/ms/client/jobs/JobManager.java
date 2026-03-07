@@ -36,6 +36,7 @@ import net.swordie.ms.client.jobs.resistance.demon.DemonSlayer;
 import net.swordie.ms.client.jobs.sengoku.Hayato;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.connection.InPacket;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -43,6 +44,7 @@ import java.lang.reflect.InvocationTargetException;
  * Created on 12/14/2017.
  */
 public class JobManager {
+    private static final Logger log = Logger.getLogger(JobManager.class);
     private static final Class[] jobClasses = new Class[]{
             Warrior.class,
             Hero.class,
@@ -126,7 +128,7 @@ public class JobManager {
             try {
                 job = (Job) clazz.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
+                log.error("Failed to instantiate job class " + clazz.getSimpleName(), e);
             }
             if (job != null && job.isHandlerOfJob(chr.getJob())) {
                 inPacket.decodeInt(); // crc
@@ -151,7 +153,7 @@ public class JobManager {
             try {
                 job = (Job) clazz.getConstructor(Char.class).newInstance(chr);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                e.printStackTrace();
+                log.error("Failed to instantiate job class " + clazz.getSimpleName() + " for job ID " + id, e);
             }
             if (job != null && job.isHandlerOfJob(id)) {
                 return job;

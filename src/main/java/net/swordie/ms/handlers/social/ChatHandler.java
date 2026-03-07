@@ -68,7 +68,7 @@ public class ChatHandler {
                             method.invoke(adminCommand, c.getChr(), split);
                         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
                             chr.chatMessage("Exception: " + e.getCause().toString());
-                            e.printStackTrace();
+                            log.error("Failed to execute admin command", e);
                         }
                     }
                 }
@@ -98,7 +98,7 @@ public class ChatHandler {
                             method.invoke(playerCommand, c.getChr(), split);
                         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
                             chr.chatMessage("Exception: " + e.getCause().toString());
-                            e.printStackTrace();
+                            log.error("Failed to execute player command", e);
                         }
                     }
                 }

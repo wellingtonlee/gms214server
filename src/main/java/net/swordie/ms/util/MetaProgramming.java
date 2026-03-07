@@ -2,7 +2,7 @@ package net.swordie.ms.util;
 
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
@@ -11,7 +11,7 @@ import java.util.*;
  * Created on 1/3/2018.
  */
 public class MetaProgramming {
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(MetaProgramming.class);
 
     public static void makeStateless() {
         String dir = ServerConstants.SCRIPT_DIR;
@@ -70,13 +70,13 @@ public class MetaProgramming {
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read script file for stateless conversion", e);
         }
         try (PrintWriter fos = new PrintWriter(outFile)){
             fos.write(sb.toString());
             fos.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to write converted stateless script", e);
         }
 
 
@@ -123,7 +123,7 @@ public class MetaProgramming {
             }
            log.debug(s);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read temp stats file", e);
         }
     }
 
@@ -158,7 +158,7 @@ public class MetaProgramming {
             }
             log.debug(s);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read header text file", e);
         }
     }
 
@@ -179,11 +179,11 @@ public class MetaProgramming {
                     String op = first[1].split("[)]")[0].replace(" ", "");
                     CharacterTemporaryStat cts = Arrays.stream(CharacterTemporaryStat.values()).filter(ctsa -> ctsa.getBitPos() == Integer.parseInt(op))
                             .findFirst().orElse(null);
-                    System.out.print(cts == null ? "Unk" + op + ",": cts + ",");
+                    log.debug(cts == null ? "Unk" + op + ",": cts + ",");
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read CTS decode file", e);
         }
     }
 
@@ -219,7 +219,7 @@ public class MetaProgramming {
             }
             log.debug(s);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read in-headers file", e);
         }
     }
 
@@ -244,7 +244,7 @@ public class MetaProgramming {
                     CharacterTemporaryStat cts = Arrays.stream(CharacterTemporaryStat.values())
                             .filter(c -> c.getBitPos() == val).findFirst().orElse(null);
                     if (cts == null) {
-                        System.out.println("Could not find cts " + bit);
+                        log.debug("Could not find cts " + bit);
                     } else {
                         if (order.contains(cts)) {
                             dups.add(cts);
@@ -255,15 +255,15 @@ public class MetaProgramming {
                 }
             }
             for (CharacterTemporaryStat cts : order) {
-                System.out.print(cts + ",");
+                log.debug(cts + ",");
             }
-            System.out.println("\r\n");
-            System.out.println("DUPLCATES:");
+            log.debug("\r\n");
+            log.debug("DUPLCATES:");
             for (CharacterTemporaryStat cts : dups) {
-                System.out.println(cts + ", " + cts.getBitPos());
+                log.debug(cts + ", " + cts.getBitPos());
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read remote order file", e);
         }
     }
 
@@ -276,24 +276,24 @@ public class MetaProgramming {
                 String line = scanner.nextLine();
                 if (line.contains("sub_8FB9B0")) {
                     String bitNum = line.split(", ")[1].split("[)]")[0];
-                    System.out.print(bitNum + ",");
+                    log.debug(bitNum + ",");
                     arr1.add(Integer.parseInt(bitNum));
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read CTS decode for local file", e);
         }
         boolean init = true;
         int diff = 0;
         List<CharacterTemporaryStat> ctss = CharacterTemporaryStat.ORDER;
-        System.out.println();
+        log.debug("");
         for (int i = 1; i < ctss.size(); i++) {
             int diff1 = ctss.get(i).getBitPos() - ctss.get(i - 1).getBitPos();
             int diff2 = arr1.get(i) - arr1.get(i -1);
             if (diff1 != diff2) {
-                System.out.printf("Different diff! %d -> %d (cts %s -> %s) (diff = %d), New = %d -> %d (diff = %d)%n",
+                log.debug(String.format("Different diff! %d -> %d (cts %s -> %s) (diff = %d), New = %d -> %d (diff = %d)",
                         ctss.get(i - 1).getBitPos(), ctss.get(i).getBitPos(), ctss.get(i - 1), ctss.get(i), diff1,
-                        arr1.get(i - 1), arr1.get(i), diff2);
+                        arr1.get(i - 1), arr1.get(i), diff2));
             }
         }
     }
@@ -305,11 +305,11 @@ public class MetaProgramming {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 if (line.contains("if") && line.contains(" & ") && !line.contains("MEMORY")) {
-                    System.out.println(line);
+                    log.debug(line);
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read CTS print file", e);
         }
     }
 

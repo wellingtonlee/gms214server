@@ -18,6 +18,8 @@ import net.swordie.ms.world.auction.AuctionEnum;
 import net.swordie.ms.world.auction.AuctionItem;
 import net.swordie.ms.world.auction.AuctionPotType;
 
+import org.apache.log4j.Logger;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
  * Created on 11/2/2017.
  */
 public class World {
+    private static final Logger log = Logger.getLogger(World.class);
     //WORLDITEM struct
 
     private WorldId worldId;
@@ -400,15 +403,16 @@ public class World {
 
     public void shutdown() {
         for (Channel channel : getChannels()) {
-            System.err.println("Shutting down channel " + channel.getChannelId() + "...");
+            log.info("Shutting down channel " + channel.getChannelId() + "...");
             channel.shutdown();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("Interrupted while waiting for channel shutdown", e);
+                Thread.currentThread().interrupt();
             }
         }
-        System.err.println("Accounts have been saved.");
+        log.info("Accounts have been saved.");
         for (AuctionItem ai : getAuctionHouse()) {
             DatabaseManager.saveToDB(ai);
         }

@@ -1288,7 +1288,8 @@ public class Field {
      */
     public void drop(Drop drop, Position position, boolean fromReactor) {
         int x = position.getX();
-        Position posTo = new Position(x, findFootHoldBelow(position).getYFromX(x));
+        Foothold fh = findFootHoldBelow(position);
+        Position posTo = fh != null ? new Position(x, fh.getYFromX(x)) : position.deepCopy();
         drop(drop, position, posTo, fromReactor);
     }
 

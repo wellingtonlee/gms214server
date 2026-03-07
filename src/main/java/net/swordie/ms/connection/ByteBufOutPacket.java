@@ -7,7 +7,7 @@ import io.netty.util.internal.OutOfDirectMemoryError;
 import net.swordie.ms.connection.api.ApiOutHeader;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.*;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class ByteBufOutPacket extends Packet {
     private boolean loopback = false;
     private boolean encryptedByShanda = false;
     private short op;
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(ByteBufOutPacket.class);
 
     /**
      * Creates a new OutPacket with a given op. Immediately encodes the op.
@@ -36,7 +36,7 @@ public class ByteBufOutPacket extends Packet {
                 HeapDumper.dumpHeap("hd", false);
                 dumped = true;
             }
-            e.printStackTrace();
+            log.error("Failed to allocate ByteBuf for OutPacket, possible direct memory exhaustion", e);
         }
         encodeShort(op);
         this.op = op;

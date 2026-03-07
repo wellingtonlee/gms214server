@@ -15,11 +15,14 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 /**
  *
  * @author PacketBakery
  */
 public class TripleDESCipher {
+    private static final Logger log = Logger.getLogger(TripleDESCipher.class);
 
     private byte[] rawKey = new byte[24];
     private Key key;
@@ -37,7 +40,7 @@ public class TripleDESCipher {
             cipher.init(Cipher.ENCRYPT_MODE, this.key);
             return cipher.doFinal(data);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            e.printStackTrace();
+            log.error("Failed to encrypt data with TripleDES cipher", e);
         }
         return null;
     }

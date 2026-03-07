@@ -214,8 +214,7 @@ public class TaskMan {
             try {
                 r.run();
             } catch (Exception e) {
-                log.error(String.format("error in executing: %s. It will no longer be run!", r));
-                e.printStackTrace();
+                log.error(String.format("error in executing: %s. It will no longer be run!", r), e);
                 FileoutputUtil.outputFileError(file, e);
                 throw new RuntimeException(e);
             }
@@ -236,8 +235,7 @@ public class TaskMan {
             try {
                 return callable.call();
             } catch (Exception e) {
-                log.error(String.format("error in executing: %s. It will no longer be run!", callable));
-                e.printStackTrace();
+                log.error(String.format("error in executing: %s. It will no longer be run!", callable), e);
                 FileoutputUtil.outputFileError(file, e);
                 throw new RuntimeException(e);
             }

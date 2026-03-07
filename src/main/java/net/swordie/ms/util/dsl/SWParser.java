@@ -1,5 +1,7 @@
 package net.swordie.ms.util.dsl;
 
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -10,6 +12,7 @@ import java.util.Stack;
  * Created on 3/28/2018.
  */
 public class SWParser {
+    private static final Logger log = Logger.getLogger(SWParser.class);
     private static final String OPEN_SCOPE = "{";
     private static final String CLOSE_SCOPE = "}";
     private static final String END_VAR = ";";
@@ -63,7 +66,7 @@ public class SWParser {
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to parse SWEntity file: " + file.getPath(), e);
         }
         return entity;
     }

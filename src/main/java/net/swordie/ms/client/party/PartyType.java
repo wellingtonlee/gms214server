@@ -2,6 +2,7 @@ package net.swordie.ms.client.party;
 
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.util.Util;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -170,6 +171,7 @@ public enum PartyType {
 
     ;
 
+    private static final Logger log = Logger.getLogger(PartyType.class);
     private byte val;
 
     PartyType(int val) {
@@ -222,7 +224,7 @@ public enum PartyType {
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read party type properties file", e);
         }
         if (check) {
             System.err.println(String.format("Current op (%s) contains a * (= updated). Be sure to check for overlap.", checkOp));

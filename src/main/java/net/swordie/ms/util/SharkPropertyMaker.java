@@ -3,6 +3,7 @@ package net.swordie.ms.util;
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.handlers.header.OutHeader;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,6 +14,7 @@ import java.io.PrintWriter;
  * Created on 1/11/2019.
  */
 public class SharkPropertyMaker {
+    private static final Logger log = Logger.getLogger(SharkPropertyMaker.class);
 
     private static void createOutPropertyFile(File output, OutHeader[] objects) {
         try (PrintWriter pw = new PrintWriter(output)) {
@@ -20,7 +22,7 @@ public class SharkPropertyMaker {
                 pw.println(String.format("%s = %d", obj, obj.getValue()));
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to create out-header property file: " + output.getPath(), e);
         }
     }
 
@@ -30,7 +32,7 @@ public class SharkPropertyMaker {
                 pw.println(String.format("%s = %d", obj, obj.getValue()));
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to create in-header property file: " + output.getPath(), e);
         }
     }
 

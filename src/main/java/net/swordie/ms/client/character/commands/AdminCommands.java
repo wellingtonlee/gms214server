@@ -51,7 +51,7 @@ import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Foothold;
 import net.swordie.ms.world.field.Portal;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -75,7 +75,7 @@ import static net.swordie.ms.enums.InventoryOperation.Add;
  * Created on 12/22/2017.
  */
 public class AdminCommands {
-    static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(AdminCommands.class);
 
     @Command(names = {"help"}, description = "Displays all commands available to you.", requiredType = Player)
     public static class Help extends AdminCommand {
@@ -226,7 +226,7 @@ public class AdminCommands {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
             tsm.putCharacterStatValue(cts, o);
             tsm.sendSetStatPacket();
-            System.out.println(String.format("CTS %s = %s", args[1], cts));
+            log.debug(String.format("CTS %s = %s", args[1], cts));
         }
     }
 
@@ -3094,7 +3094,7 @@ public class AdminCommands {
                             chrz[i].chatMessage("Successfully made a ring with " + chrz[i == 0 ? 1 : 0].getName());
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        log.error("Failed to create friendship ring", e);
                     }
                     FriendshipRingRecord.addToDB(itemId, chr, fff.getName(), fff.getId(), ringID);
                 }

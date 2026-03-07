@@ -21,7 +21,7 @@ public class DropInfo {
     @Transient
     private int minMoney;
     @Transient
-    private int maxmoney;
+    private int maxMoney;
     private int minQuant = 1;
     private int maxQuant = 1;
     @Transient
@@ -35,10 +35,10 @@ public class DropInfo {
         this.chance = chance;
     }
 
-    public DropInfo(int chance, int minMoney, int maxmoney) {
+    public DropInfo(int chance, int minMoney, int maxMoney) {
         this.chance = chance;
         this.minMoney = minMoney;
-        this.maxmoney = maxmoney;
+        this.maxMoney = maxMoney;
         generateNextDrop();
     }
 
@@ -67,11 +67,11 @@ public class DropInfo {
     }
 
     public int getMaxMoney() {
-        return maxmoney;
+        return maxMoney;
     }
 
-    public void setMaxMoney(int maxmoney) {
-        this.maxmoney = maxmoney;
+    public void setMaxMoney(int maxMoney) {
+        this.maxMoney = maxMoney;
     }
 
     public int getItemID() {
