@@ -143,7 +143,7 @@ public class ReactorData {
                     dos.writeShort(r.getBottom());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save reactor data", e);
             }
         }
     }
@@ -181,7 +181,7 @@ public class ReactorData {
             }
             addReactorInfo(ri);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load reactor data", e);
         }
         return ri;
     }

@@ -2,6 +2,7 @@ package net.swordie.ms.handlers.header;
 
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.util.Util;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -2144,6 +2145,8 @@ public enum OutHeader {
     NO(9999),
     ;
 
+    private static final Logger log = Logger.getLogger(OutHeader.class);
+
     private short value;
 
     OutHeader(int value) {
@@ -2210,7 +2213,7 @@ public enum OutHeader {
                     String[] split = line.split("[()]");
                     String name = split[0];
                     if (!Util.isNumber(split[1])) {
-                        System.out.println(line);
+                        log.info(line);
                         continue;
                     }
                     int val = Integer.parseInt(split[1]);
@@ -2223,20 +2226,20 @@ public enum OutHeader {
                                 checkOp = oh;
                             }
                             val += change;
-                            System.out.println(String.format("%s(%d), %s", name, val, start == oh ? "// *" : ""));
+                            log.info(String.format("%s(%d), %s", name, val, start == oh ? "// *" : ""));
                         } else {
-                            System.out.println(line);
+                            log.info(line);
                         }
                     }
                 } else {
-                    System.out.println(line);
+                    log.info(line);
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read OutHeader source file", e);
         }
         if (check) {
-            System.err.println(String.format("Current op (%s) contains a * (= updated). Be sure to check for overlap.", checkOp));
+            log.warn(String.format("Current op (%s) contains a * (= updated). Be sure to check for overlap.", checkOp));
         }
     }
 }

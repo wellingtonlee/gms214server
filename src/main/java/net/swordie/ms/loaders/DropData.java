@@ -74,7 +74,7 @@ public class DropData {
 //            }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load drop data from file", e);
         }
     }
     public static Set<DropInfo> getDropInfoByID(int mobID) {

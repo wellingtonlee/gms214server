@@ -56,7 +56,7 @@ public class ApiAcceptor implements Runnable {
             // shut down your server.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("API acceptor interrupted", e);
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();

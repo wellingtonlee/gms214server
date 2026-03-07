@@ -66,7 +66,7 @@ public class ItemHandler {
         short slot = inPacket.decodeShort();
         int itemID = inPacket.decodeInt();
 
-        System.out.println(itemID);
+        log.debug("useConsume itemID: " + itemID);
 
         Item item = chr.getConsumeInventory().getItemBySlot(slot);
 

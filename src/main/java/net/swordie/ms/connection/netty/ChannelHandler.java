@@ -30,7 +30,7 @@ import static net.swordie.ms.connection.netty.NettyClient.CLIENT_KEY;
  */
 public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
 
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChannelHandler.class);
     private static final Map<InHeader, Method> handlers = new HashMap<>();
 
     public static void initHandlers(boolean mayOverride) {
@@ -64,7 +64,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                     }
                 }
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                log.error("Failed to load handler class: " + file.getPath(), e);
             }
         }
         log.info("Initialized " + handlers.size() + " handlers in " + (System.currentTimeMillis() - start) + "ms.");
@@ -144,7 +144,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                     }
 //                } catch (IllegalAccessException | InvocationTargetException e) {
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("Error executing handler " + method.getName() + " for opcode " + inHeader, e);
                 }
             }
         } finally {
@@ -163,7 +163,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         if (cause instanceof IOException) {
             log.debug("Client forcibly closed the game.");
         } else {
-            cause.printStackTrace();
+            log.error("Exception caught in channel handler", cause);
         }
     }
 }

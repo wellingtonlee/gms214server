@@ -12,7 +12,7 @@ import net.swordie.ms.loaders.containerclasses.ItemRewardInfo;
 import net.swordie.ms.loaders.containerclasses.PetInfo;
 import net.swordie.ms.loaders.containerclasses.ItemSet;
 import net.swordie.ms.util.*;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -34,7 +34,7 @@ public class ItemData {
     public static Map<Integer, ItemSet> itemSets = new HashMap<>();
     public static Map<Integer, Integer> skillIdByItemId = new HashMap<>();
     private static Set<Integer> startingItems = new HashSet<>();
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(ItemData.class);
     private static final boolean LOG_UNKS = false;
 
     public static Equip getEquipDeepCopyFromID(int itemId, boolean randomizeStats) {
@@ -173,7 +173,7 @@ public class ItemData {
             equip.setAndroidGrade(dataInputStream.readInt());
             equips.put(equip.getItemId(), equip);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load equip data", e);
         }
         return equip;
     }
@@ -249,7 +249,7 @@ public class ItemData {
                 dataOutputStream.writeInt(equip.getAndroid());
                 dataOutputStream.writeInt(equip.getAndroidGrade());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save equip data", e);
             }
         }
     }
@@ -539,7 +539,7 @@ public class ItemData {
             getItems().put(itemInfo.getItemId(), itemInfo);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load item info data", e);
         }
         return itemInfo;
 
@@ -604,7 +604,7 @@ public class ItemData {
                 dataOutputStream.writeInt(ii.getSkillId());
                 dataOutputStream.writeInt(ii.getStateChangeItem());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save item info data", e);
             }
         }
     }
@@ -653,7 +653,7 @@ public class ItemData {
                 dos.writeBoolean(pi.isConsumeMP());
                 dos.writeUTF(pi.getRunScript() == null ? "" : pi.getRunScript());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save pet info data", e);
             }
         }
     }
@@ -715,7 +715,7 @@ public class ItemData {
             pi.setRunScript(dis.readUTF());
             addPetInfo(pi);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load pet info data", e);
         }
         return pi;
     }
@@ -1571,7 +1571,7 @@ public class ItemData {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save item set data", e);
         }
     }
 
@@ -1602,7 +1602,7 @@ public class ItemData {
                     getItemSets().put(is.getId(), is);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to load item set data", e);
             }
         }
     }
@@ -1618,7 +1618,7 @@ public class ItemData {
                 skillIdByItemId.put(itemId, skillId);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load mount items from file", e);
         }
     }
 
@@ -1959,7 +1959,7 @@ public class ItemData {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save item option data", e);
         }
     }
 
@@ -1997,7 +1997,7 @@ public class ItemData {
                     getItemOptions().put(io.getId(), io);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to load item option data", e);
             }
         }
     }
@@ -2010,7 +2010,7 @@ public class ItemData {
                 dos.writeInt(i);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save starting items data", e);
         }
     }
 
@@ -2047,7 +2047,7 @@ public class ItemData {
                     startingItems.add(dis.readInt());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to load starting items data", e);
             }
         }
     }

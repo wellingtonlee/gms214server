@@ -139,9 +139,7 @@ public class UserHandler {
                 }
             } catch (Exception e) {
                 result = 1;
-                e.printStackTrace();
-            } finally {
-
+                log.error("Error processing user rename request", e);
             }
             if (result == 0) {
                 chr.consumeItem(itemID, 1);
@@ -306,20 +304,20 @@ public class UserHandler {
     public static void handleUserPortableChairSitRequest(Char chr, InPacket inpacket) {
         Field field = chr.getField();
         int fieldId = inpacket.decodeInt(); // fieldId
-        System.out.println("field id: " + fieldId);
+        log.debug("field id: " + fieldId);
         int itemId = inpacket.decodeInt(); // item id
-        System.out.println("item id: " + itemId);
+        log.debug("item id: " + itemId);
         int pos = inpacket.decodeInt(); // setup position
-        System.out.println("pos : " + pos);
+        log.debug("pos: " + pos);
         byte chairBag = inpacket.decodeByte(); // is PortableChair in a bag
-        System.out.println("chair bag: " + chairBag);
+        log.debug("chair bag: " + chairBag);
 
 
         PortableChair chair = new PortableChair(chr, itemId, ChairType.NormalChair);
 
 
         Position charPos = inpacket.decodePositionInt();
-        System.out.println("char pos: " + charPos);
+        log.debug("char pos: " + charPos);
 
 
         int unknown = inpacket.decodeInt();
@@ -329,7 +327,7 @@ public class UserHandler {
 
         chr.setChair(chair);
         field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr.getId(), chr.getChair()));
-        System.out.println("cha: " + charPos);
+        log.debug("cha: " + charPos);
         chr.dispose();
     }
 

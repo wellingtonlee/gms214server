@@ -1328,12 +1328,11 @@ public class Mob extends Life {
         try {
             executeRunnableAtHp(percDamage);
         } catch( Exception e) {
-            e.printStackTrace();
+            log.error("Error executing runnable at HP threshold", e);
         }
         if (oldHp > 0 && newHp <= 0) {
-            // Boss sponges
-            // TODO horntail kills
-            if (getTemplateId() == 8810214 || getTemplateId() == 8810018 || getTemplateId() == 8810118) {
+            // Boss sponges — killing the sponge kills all parts
+            if (MobConstants.isHorntailSponge(getTemplateId())) {
                 getField().getMobs().forEach(m -> m.die(true));
             }
             die(true);

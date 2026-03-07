@@ -27,7 +27,6 @@ import net.swordie.ms.world.World;
 import net.swordie.ms.world.shop.cashshop.CashShop;
 import net.swordie.ms.world.shop.cashshop.CashShopCategory;
 import net.swordie.ms.world.shop.cashshop.CashShopItem;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import net.swordie.ms.util.Loader;
@@ -49,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Server extends Properties {
 
-	final Logger log = LogManager.getRootLogger();
+	private static final Logger log = Logger.getLogger(Server.class);
 
 	private static final Server server = new Server();
 
@@ -89,7 +88,7 @@ public class Server extends Properties {
 			checkAndCreateDat();
 			loadWzData();
 		} catch (IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
+			log.error("Failed to load WZ data", e);
 		}
 		StringData.load();
 		FieldData.loadWorldMap();
@@ -174,7 +173,7 @@ public class Server extends Properties {
 					Method m = c.getMethod("generateDatFiles");
 					m.invoke(null);
 				} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-					e.printStackTrace();
+					log.error("Failed to generate dat files for " + c.getName(), e);
 				}
 			}
 		}
@@ -264,7 +263,7 @@ public class Server extends Properties {
 					try {
 						Thread.sleep(shutdownTime);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						log.error("Shutdown sleep interrupted", e);
 					}
 				}
 

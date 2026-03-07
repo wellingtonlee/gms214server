@@ -255,7 +255,7 @@ public class DatabaseManager {
             query.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to modify object in DB: " + clazz.getName() + " id=" + id + " column=" + columnName, e);
         } finally {
             if (session != null && session.isOpen()) session.close();
         }

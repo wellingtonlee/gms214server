@@ -1292,7 +1292,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
                     String[] split = line.split("[()]");
                     String name = split[0];
                     if (!Util.isNumber(split[1])) {
-                        System.out.println(line);
+                        log.info(line);
                         continue;
                     }
                     int val = Integer.parseInt(split[1]);
@@ -1304,22 +1304,22 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
                                 checkOp = ih;
                             }
                             val += change;
-                            System.out.println(String.format("%s(%d), %s", name, val, start == ih ? "// *" : ""));
+                            log.info(String.format("%s(%d), %s", name, val, start == ih ? "// *" : ""));
                         } else {
-                            System.out.println(line);
+                            log.info(line);
                         }
                     } else {
-                        System.out.println(line);
+                        log.info(line);
                     }
                 } else {
-                    System.out.println(line);
+                    log.info(line);
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Failed to read CharacterTemporaryStat source file", e);
         }
         if (checkOp != null) {
-            System.err.println(String.format("Current op (%s) contains a * (= updated). Be sure to check for overlap.", checkOp));
+            log.warn(String.format("Current op (%s) contains a * (= updated). Be sure to check for overlap.", checkOp));
         }
     }
 }

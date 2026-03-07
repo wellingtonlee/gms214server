@@ -2,7 +2,7 @@ package net.swordie.ms.loaders;
 
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import net.swordie.ms.util.Util;
@@ -22,7 +22,7 @@ public class StringData {
     public static Map<Integer, String> npcStrings = new HashMap<>();
     public static Map<Integer, String> questStrings = new HashMap<>();
 
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(StringData.class);
 
     public static Map<Integer, String> getItemStrings() {
         return itemStrings;
@@ -273,7 +273,7 @@ public class StringData {
                 dataOutputStream.writeUTF(name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save quest string data", e);
         }
     }
 
@@ -293,7 +293,7 @@ public class StringData {
                 dataOutputStream.writeUTF(ssi.getH());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save skill string data", e);
         }
     }
 
@@ -311,7 +311,7 @@ public class StringData {
                 getSkillString().put(id, ssi);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load skill string data", e);
         }
         log.info(String.format("Loaded skill strings from data file in %dms.", System.currentTimeMillis() - start));
     }
@@ -328,7 +328,7 @@ public class StringData {
                 dataOutputStream.writeUTF(ssi);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save item string data", e);
         }
     }
 
@@ -343,7 +343,7 @@ public class StringData {
                 itemStrings.put(id, name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load item string data", e);
         }
         log.info(String.format("Loaded item strings from data file in %dms.", System.currentTimeMillis() - start));
     }
@@ -359,7 +359,7 @@ public class StringData {
                 questStrings.put(id, name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load quest string data", e);
         }
         log.info(String.format("Loaded quest strings from data file in %dms.", System.currentTimeMillis() - start));
     }
@@ -376,7 +376,7 @@ public class StringData {
                 dataOutputStream.writeUTF(name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save mob string data", e);
         }
     }
 
@@ -391,7 +391,7 @@ public class StringData {
                 getMobStrings().put(id, name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load mob string data", e);
         }
         log.info(String.format("Loaded mob strings from data file in %dms.", System.currentTimeMillis() - start));
     }
@@ -408,7 +408,7 @@ public class StringData {
                 dataOutputStream.writeUTF(name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save NPC string data", e);
         }
     }
 
@@ -423,7 +423,7 @@ public class StringData {
                 getNpcStrings().put(id, name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load NPC string data", e);
         }
         log.info(String.format("Loaded npc strings from data file in %dms.", System.currentTimeMillis() - start));
     }
@@ -440,7 +440,7 @@ public class StringData {
                 dataOutputStream.writeUTF(name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save map string data", e);
         }
     }
 
@@ -455,7 +455,7 @@ public class StringData {
                 getMapStrings().put(id, name);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load map string data", e);
         }
         log.info(String.format("Loaded item strings from data file in %dms.", System.currentTimeMillis() - start));
     }
@@ -627,7 +627,7 @@ public class StringData {
         try (PrintWriter pw = new PrintWriter(new FileWriter(new File(ServerConstants.RESOURCES_DIR + "/Skill.txt")))) {
             pw.println(sb.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to write skill text file", e);
         }
         TreeMap<Integer, String> sortedTree = new TreeMap<>(Comparator.comparingInt(Integer::intValue));
         int i = 0;
@@ -642,7 +642,7 @@ public class StringData {
             try (PrintWriter pw = new PrintWriter(new FileWriter(new File(ServerConstants.RESOURCES_DIR + "/" + fileName)))) {
                 pw.println(sb.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to write string text file: " + fileName, e);
             }
         }
         names = new String[]{"Eqp", "Use", "Ins", "Etc", "Cash"};
@@ -664,7 +664,7 @@ public class StringData {
             try (PrintWriter pw = new PrintWriter(new FileWriter(new File(ServerConstants.RESOURCES_DIR + "/" + fileName)))) {
                 pw.println(sb.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to write item text file: " + fileName, e);
             }
         }
     }

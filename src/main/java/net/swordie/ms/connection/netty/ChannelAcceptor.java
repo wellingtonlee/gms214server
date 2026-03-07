@@ -20,7 +20,7 @@ public class ChannelAcceptor implements Runnable {
 
     public Map<String, Channel> channelPool = new HashMap<>();
     public net.swordie.ms.world.Channel channel;
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChannelAcceptor.class);
 
     @Override
     public void run() {
@@ -67,7 +67,7 @@ public class ChannelAcceptor implements Runnable {
             // shut down your server.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Channel acceptor interrupted", e);
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();

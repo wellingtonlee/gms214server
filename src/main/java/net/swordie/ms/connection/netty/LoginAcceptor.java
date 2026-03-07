@@ -23,7 +23,7 @@ import static net.swordie.ms.connection.netty.NettyClient.CLIENT_KEY;
 public class LoginAcceptor implements Runnable{
 
     public static Map<String, Channel> channelPool = new HashMap<>();
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LoginAcceptor.class);
     @Override
     public void run() {
         // Taken from http://netty.io/wiki/user-guide-for-4.x.html
@@ -68,7 +68,7 @@ public class LoginAcceptor implements Runnable{
             // shut down your server.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Login acceptor interrupted", e);
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();

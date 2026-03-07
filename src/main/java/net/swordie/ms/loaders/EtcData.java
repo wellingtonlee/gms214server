@@ -54,7 +54,7 @@ public class EtcData {
                 dos.writeInt(entry.getValue()); // skill ID
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save familiar skills data", e);
         }
     }
 
@@ -72,7 +72,7 @@ public class EtcData {
                     familiarSkills.put(familiarID, skillID);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to load familiar skills data", e);
             }
         }
     }
@@ -229,7 +229,7 @@ public class EtcData {
                 dataOutputStream.writeByte(soulEntry.getValue().getSoulType().getVal());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save soul collection data", e);
         }
     }
 
@@ -244,7 +244,7 @@ public class EtcData {
                 soulCollection.put(itemId, new BossSoul(skillId, soulType));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load soul collection data", e);
         }
     }
 
@@ -267,7 +267,7 @@ public class EtcData {
                     dos.writeInt(skin);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save android info data", e);
             }
         }
     }
@@ -297,7 +297,7 @@ public class EtcData {
             }
             androidInfo.put(ai.getId(), ai);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load android info data", e);
         }
         return ai;
     }

@@ -94,11 +94,11 @@ public class NpcData {
 						das.writeInt(key);
 						das.writeUTF(val);
 					} catch (IOException e) {
-						e.printStackTrace();
+						log.error("Failed to write NPC script data", e);
 					}
 				});
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Failed to save NPC data", e);
 			}
 		}
 	}
@@ -137,7 +137,7 @@ public class NpcData {
 			getBaseNpcs().add(npc);
 			return npc;
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Failed to load NPC data", e);
 		}
 		return null;
 	}

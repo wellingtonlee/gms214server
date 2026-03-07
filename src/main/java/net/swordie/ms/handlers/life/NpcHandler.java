@@ -167,7 +167,7 @@ public class NpcHandler {
                 }
                 if (nsi.getMaxPerSlot() > 0 && nsi.getMaxPerSlot() < quantity) {
                     chr.write(ShopDlg.shopResult(ShopResult.msg(ShopResultType.FullInvMsg)));
-                    System.out.println("Shop MaxPerSlot: " + nsi.getMaxPerSlot() + " expected: " + quantity);
+                    log.warn("Shop MaxPerSlot: " + nsi.getMaxPerSlot() + " expected: " + quantity);
                     chr.getOffenseManager().addOffense(Offense.Type.Editing, "Tried buying more quantity than max per slot");
                     return;
                 }

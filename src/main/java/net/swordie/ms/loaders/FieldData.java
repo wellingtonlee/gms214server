@@ -10,7 +10,7 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.life.Reactor;
 import net.swordie.ms.ServerConstants;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -30,7 +30,7 @@ public class FieldData {
 
     private static List<Field> fields = new ArrayList<>();
     private static List<Integer> worldMapFields = new ArrayList<>();
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(FieldData.class);
     private static final boolean LOG_UNKS = false;
 
     public static void main(String[] args) {
@@ -146,7 +146,7 @@ public class FieldData {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save field data", e);
             }
         }
     }
@@ -729,7 +729,7 @@ public class FieldData {
             }
             getFields().add(field);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load field data", e);
         }
         return field;
     }
@@ -766,7 +766,7 @@ public class FieldData {
                 dataOutputStream.writeInt(fieldId);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save world map data", e);
         }
     }
 
@@ -778,7 +778,7 @@ public class FieldData {
                 worldMapFields.add(dataInputStream.readInt());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load world map data", e);
         }
         log.info(String.format("Loaded world map fields from data file in %dms.", System.currentTimeMillis() - start));
     }

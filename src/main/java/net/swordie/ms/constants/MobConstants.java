@@ -18,6 +18,18 @@ public class MobConstants {
 
     }
 
+    public static boolean isHorntailSponge(int templateId) {
+        // Easy HT sponge, Normal HT sponge, Chaos HT sponge
+        return templateId == 8810018 || templateId == 8810118 || templateId == 8810214;
+    }
+
+    public static boolean isHorntailPart(int templateId) {
+        // Normal HT parts: 8810002-8810009 (heads, wings, tails, legs)
+        // Chaos HT parts: 8810102-8810109
+        return (templateId >= 8810002 && templateId <= 8810009)
+                || (templateId >= 8810102 && templateId <= 8810109);
+    }
+
     public static boolean isDamien(int templateId) {
         return templateId >= 8880100 && templateId <= 8880131;
     }

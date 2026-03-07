@@ -326,11 +326,17 @@ public class MobSkill {
                 }
                 break;
             case Damage:
-                boolean fixDamR = msi.getSkillStatIntValue(MobSkillStat.fixDamR) > 0;
-                int damage = msi.getSkillStatIntValue(x);
-
-                if (damage != 0)
-                    chars.stream().filter(chra -> !chra.getTemporaryStatManager().hasStat(CharacterTemporaryStat.NotDamaged)).forEach(chra -> chra.damage((fixDamR ? chra.getHPPerc(damage) : damage), true));
+                int fixDamRVal = msi.getSkillStatIntValue(MobSkillStat.fixDamR);
+                int flatDamage = msi.getSkillStatIntValue(x);
+                if (fixDamRVal > 0) {
+                    chars.stream()
+                            .filter(chra -> !chra.getTemporaryStatManager().hasStat(CharacterTemporaryStat.NotDamaged))
+                            .forEach(chra -> chra.damage(chra.getHPPerc(fixDamRVal), true));
+                } else if (flatDamage != 0) {
+                    chars.stream()
+                            .filter(chra -> !chra.getTemporaryStatManager().hasStat(CharacterTemporaryStat.NotDamaged))
+                            .forEach(chra -> chra.damage(flatDamage, true));
+                }
                 break;
             case PGuardUp:
             case PGuardUpM:
@@ -381,10 +387,22 @@ public class MobSkill {
                 }
                 break;
             case Dispel:
-
+                for (Char c : chars) {
+                    if (Util.succeedProp(msi.getSkillStatIntValue(prop))
+                            && Util.succeedProp(100 - c.getTotalStat(BaseStat.asr))) {
+                        TemporaryStatManager tsm = c.getTemporaryStatManager();
+                        tsm.removeAllStats();
+                        tsm.sendResetStatPacket();
+                    }
+                }
                 break;
             case Attract:
-
+                o.nOption = msi.getSkillStatIntValue(x);
+                for (Char c : chars) {
+                    TemporaryStatManager tsm = c.getTemporaryStatManager();
+                    tsm.putCharacterStatValue(CharacterTemporaryStat.Magnet, o);
+                    tsm.sendSetStatPacket();
+                }
                 break;
             case AreaFire:
             case AreaPoison:
@@ -415,7 +433,7 @@ public class MobSkill {
                 int skillAfter = msi.getSkillStatIntValue(x);
                 int xPos = msi.getSkillStatIntValue(y);
                 Position newPos = new Position(mob.isLeft() ? mob.getX() - xPos : mob.getX() + xPos, mob.getY());
-                if (getLevel() != 1 || getLevel() != 2) {
+                if (getLevel() != 1 && getLevel() != 2) {
                     mob.teleport(newPos, skillAfter);
                 }
                 if (MobConstants.isDamien(mob.getTemplateId())) {

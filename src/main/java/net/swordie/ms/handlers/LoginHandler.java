@@ -33,7 +33,6 @@ import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.MapTaggedObject;
-import org.apache.log4j.LogManager;
 import net.swordie.ms.connection.packet.Login;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.Server;
@@ -57,7 +56,7 @@ import org.apache.log4j.Logger;
  * Created on 4/28/2017.
  */
 public class LoginHandler {
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(LoginHandler.class);
 
 
     @Handler(op = InHeader.PERMISSION_REQUEST)
@@ -83,7 +82,7 @@ public class LoginHandler {
         try {
             data = Files.readAllBytes(dataWz.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to read hotfix data file", e);
         }
         c.write(Login.sendHotfix(data));
     }
@@ -102,7 +101,7 @@ public class LoginHandler {
         boolean success;
         LoginType result;
         User user = User.getFromDBByName(username);
-        System.out.println("User " + user);
+        log.debug("User " + user);
         if (user != null) {
             String dbPassword = user.getPassword();
             boolean hashed = Util.isStringBCrypt(dbPassword);
@@ -215,7 +214,7 @@ public class LoginHandler {
 
         byte code = 0; // success code
 
-        System.out.println("auth info: " + authInfo);
+        log.debug("auth info: " + authInfo);
 
         User user = User.getFromDBById(userID);
         userID = userID == 0 ? 1 : userID;
@@ -511,7 +510,7 @@ public class LoginHandler {
         byte worldId = c.getWorldId();
         byte channelId = c.getChannel();
         Channel channel = Server.getInstance().getWorldById(worldId).getChannelById(channelId);
-        System.out.println(name + " is logging in!");
+        log.info(name + " is logging in!");
         FileoutputUtil.log("Chat.txt", "[LOGIN] " + name + " is logging in!");
         if (c.isAuthorized() && c.getAccount().hasCharacter(characterId)) {
             Server.getInstance().getWorldById(worldId).getChannelById(channelId).addClientInTransfer(channelId, characterId, c);

@@ -10,7 +10,7 @@ import net.swordie.ms.loaders.containerclasses.MakingSkillRecipe;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.*;
 import net.swordie.ms.util.container.Tuple;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.python.jline.internal.Log;
 import org.w3c.dom.Node;
 
@@ -26,7 +26,7 @@ public class SkillData {
     private static Map<Integer, Map<Integer, Integer>> eliteMobSkills = new HashMap<>();
     private static Map<Short, Map<Short, MobSkillInfo>> mobSkillInfos = new HashMap<>();
     private static Map<Integer, MakingSkillRecipe> makingSkillRecipes = new HashMap<>();
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(SkillData.class);
     private static final boolean LOG_UNKS = false;
 
     public static void saveSkills(String dir) {
@@ -111,7 +111,7 @@ public class SkillData {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save skill data", e);
             }
         }
     }
@@ -224,7 +224,7 @@ public class SkillData {
 
             getSkillInfos().put(skillInfo.getSkillId(), skillInfo);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load skill data", e);
         }
     }
 
@@ -616,7 +616,7 @@ public class SkillData {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save elite mob skill data", e);
         }
     }
 
@@ -638,7 +638,7 @@ public class SkillData {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to load elite mob skill data", e);
             }
         }
     }
@@ -1005,7 +1005,7 @@ public class SkillData {
                         dos.writeInt(i);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Failed to save mob skill data", e);
                 }
             }
         }
@@ -1053,7 +1053,7 @@ public class SkillData {
             }
             addMobSkillInfo(msi);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load mob skill data", e);
         }
         return msi;
     }
@@ -1245,7 +1245,7 @@ public class SkillData {
                 dos.writeInt(msr.getExpiredPeriod());
                 dos.writeBoolean(msr.isPremiumItem());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save making skill recipe data", e);
             }
         }
     }
@@ -1285,7 +1285,7 @@ public class SkillData {
             msr.setPremiumItem(dataInputStream.readBoolean());
             getMakingSkillRecipes().put(msr.getRecipeID(), msr);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load making skill recipe data", e);
         }
     }
 

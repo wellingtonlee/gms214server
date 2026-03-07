@@ -62,7 +62,7 @@ public class FamiliarHandler {
         inPacket.decodeInt(); // tick
         int familiarID = inPacket.decodeInt();
         boolean on = inPacket.decodeByte() != 0;
-        System.out.println("on: " + on);
+        log.debug("Familiar spawn request on: " + on);
         Familiar familiar = chr.getFamiliarByID(familiarID);
         if (familiar != null) {
             Familiar activeFam = chr.getActiveFamiliar();

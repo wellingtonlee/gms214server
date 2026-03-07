@@ -205,7 +205,7 @@ public class VCoreData {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save VCore data", e);
         }
     }
 
@@ -250,7 +250,7 @@ public class VCoreData {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load VCore data", e);
         }
     }
 

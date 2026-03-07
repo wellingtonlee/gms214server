@@ -12,7 +12,7 @@ import net.swordie.ms.enums.QuestStatus;
 import net.swordie.ms.enums.Stat;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.loaders.containerclasses.QuestInfo;
-import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.XMLApi;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public class QuestData {
     private static Set<QuestInfo> baseQuests = new HashSet<>();
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = Logger.getLogger(QuestData.class);
     private static final boolean LOG_UNKS = false;
 
     public static void loadQuestsFromWZ() {
@@ -634,7 +634,7 @@ public class QuestData {
                 dos.writeBoolean(qi.isAutoComplete());
                 dos.writeInt(qi.getMedalItemId());
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to save quest data", e);
             }
         }
     }
@@ -712,8 +712,7 @@ public class QuestData {
             qi.setMedalItemId(dis.readInt());
             getBaseQuests().add(qi);
         } catch (IOException e) {
-            log.error(String.format("IOException when loading %d", qi.getQuestID()));
-            e.printStackTrace();
+            log.error(String.format("Failed to load quest data for quest %d", qi.getQuestID()), e);
         }
         return qi;
     }
