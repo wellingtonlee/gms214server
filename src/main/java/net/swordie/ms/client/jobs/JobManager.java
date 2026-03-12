@@ -123,7 +123,7 @@ public class JobManager {
     private short id;
 
     public static void handleSkill(Char chr, InPacket inPacket) {
-        for (Class clazz : jobClasses) {
+        for (Class<?> clazz : jobClasses) {
             Job job = null;
             try {
                 job = (Job) clazz.newInstance();
@@ -149,7 +149,7 @@ public class JobManager {
 
     public static Job getJobById(short id, Char chr) {
         Job job = null;
-        for (Class clazz : jobClasses) {
+        for (Class<?> clazz : jobClasses) {
             try {
                 job = (Job) clazz.getConstructor(Char.class).newInstance(chr);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {

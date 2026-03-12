@@ -48,7 +48,7 @@ public class ChatHandler {
             if (msg.charAt(0) == AdminCommand.getPrefix()) {
                 boolean executed = false;
                 String command = msg.split(" ")[0].replace("!", "");
-                for (Class clazz : AdminCommands.class.getClasses()) {
+                for (Class<?> clazz : AdminCommands.class.getClasses()) {
                     Command cmd = (Command) clazz.getAnnotation(Command.class);
                     boolean matchingCommand = false;
                     for (String name : cmd.names()) {
@@ -78,7 +78,7 @@ public class ChatHandler {
             } else if (msg.charAt(0) == PlayerCommand.getPrefix()) {
                 boolean executed = false;
                 String command = msg.split(" ")[0].replace("@", "");
-                for (Class clazz : PlayerCommands.class.getClasses()) {
+                for (Class<?> clazz : PlayerCommands.class.getClasses()) {
                     Command cmd = (Command) clazz.getAnnotation(Command.class);
                     boolean matchingCommand = false;
                     for (String name : cmd.names()) {

@@ -141,7 +141,7 @@ public class DatabaseManager {
                 BeautyAlbum.class,
                 HotTimeReward.class,
         };
-        for (Class clazz : dbClasses) {
+        for (Class<?> clazz : dbClasses) {
             configuration.addAnnotatedClass(clazz);
         }
         sessionFactory = configuration.buildSessionFactory();
@@ -184,7 +184,7 @@ public class DatabaseManager {
         }
     }
 
-    public static Object getObjFromDB(Class clazz, int id) {
+    public static Object getObjFromDB(Class<?> clazz, int id) {
         Object o;
         try (Session session = getSession()) {
             Transaction t = session.beginTransaction();
@@ -194,11 +194,11 @@ public class DatabaseManager {
         return o;
     }
 
-    public static Object getObjFromDB(Class clazz, String name) {
+    public static Object getObjFromDB(Class<?> clazz, String name) {
         return getObjFromDB(clazz, "name", name);
     }
 
-    public static Object getObjFromDB(Class clazz, String columnName, Object value) {
+    public static Object getObjFromDB(Class<?> clazz, String columnName, Object value) {
         Object o = null;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
@@ -215,7 +215,7 @@ public class DatabaseManager {
         return o;
     }
 
-    public static Object getObjListFromDB(Class clazz) {
+    public static Object getObjListFromDB(Class<?> clazz) {
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
@@ -228,7 +228,7 @@ public class DatabaseManager {
         return list;
     }
 
-    public static Object getObjListFromDB(Class clazz, String columnName, Object value) {
+    public static Object getObjListFromDB(Class<?> clazz, String columnName, Object value) {
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
@@ -242,7 +242,7 @@ public class DatabaseManager {
         return list;
     }
 
-    public static void modifyObjectFromDB(Class clazz, int id, String columnName, Object value) {
+    public static void modifyObjectFromDB(Class<?> clazz, int id, String columnName, Object value) {
         Session session = null;
         try {
             session = getSession();

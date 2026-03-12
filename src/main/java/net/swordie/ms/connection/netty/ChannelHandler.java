@@ -45,7 +45,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                         .replaceAll("[\\\\|/]", ".")
                         .split("src\\.main\\.java\\.")[1]
                         .replaceAll("\\.java", "");
-                Class clazz = Class.forName(className);
+                Class<?> clazz = Class.forName(className);
                 for (Method method : clazz.getMethods()) {
                     Handler handler = method.getAnnotation(Handler.class);
                     if (handler != null) {
@@ -131,7 +131,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             if (method == null) {
                 handleUnknown(inPacket, op);
             } else {
-                Class clazz = method.getParameterTypes()[0];
+                Class<?> clazz = method.getParameterTypes()[0];
                 try {
                     if (method.getParameterTypes().length == 3) {
                         method.invoke(this, chr, inPacket, inHeader);

@@ -118,6 +118,10 @@ public class Field {
     private boolean zakPlatformsVisible = false;
     private int zakArmSmashMobs = 10;
 
+    private final FieldDropManager dropManager;
+    private final FieldSpawnManager spawnManager;
+    private final FieldEffectManager effectManager;
+
     public Field(int fieldID) {
         this.id = fieldID;
         this.rect = new Rect();
@@ -131,6 +135,21 @@ public class Field {
         this.properties = new HashMap<>();
         this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
         hasVrInfo = vrLeft != 0 || vrTop != 0 || vrRight != 0 || vrBottom != 0;
+        this.dropManager = new FieldDropManager(this);
+        this.spawnManager = new FieldSpawnManager(this);
+        this.effectManager = new FieldEffectManager(this);
+    }
+
+    public FieldDropManager getDropManager() {
+        return dropManager;
+    }
+
+    public FieldSpawnManager getSpawnManager() {
+        return spawnManager;
+    }
+
+    public FieldEffectManager getEffectManager() {
+        return effectManager;
     }
 
     public void startFieldScript() {
@@ -537,65 +556,34 @@ public class Field {
     }
 
     public void spawnSummon(Summon summon) {
-        Summon oldSummon = (Summon) getLifes().values().stream()
-                .filter(s -> s instanceof Summon &&
-                        ((Summon) s).getChr() == summon.getChr() &&
-                        ((Summon) s).getSkillID() == summon.getSkillID())
-                .findFirst().orElse(null);
-        if (oldSummon != null) {
-            removeLife(oldSummon.getObjectId(), false);
-        }
-        spawnLife(summon, null);
+        spawnManager.spawnSummon(summon);
     }
 
-    public void spawnAddSummon(Summon summon) { //Test
-        spawnLife(summon, null);
+    public void spawnAddSummon(Summon summon) {
+        spawnManager.spawnAddSummon(summon);
     }
 
     public void removeSummon(int skillID, int chrID) {
-        Summon summon = (Summon) getLifes().values().stream()
-                .filter(s -> s instanceof Summon &&
-                        ((Summon) s).getChr().getId() == chrID &&
-                        ((Summon) s).getSkillID() == skillID)
-                .findFirst().orElse(null);
-        if (summon != null) {
-            removeLife(summon.getObjectId(), false);
-        }
+        spawnManager.removeSummon(skillID, chrID);
     }
 
     public void spawnWreckage(Char chr, Wreckage wreckage) {
-        addLife(wreckage);
-        broadcastPacket(FieldPacket.addWreckage(wreckage, getWreckageByChrId(chr.getId()).size()));
-        EventManager.addEvent(() -> removeWreckage(chr, wreckage), wreckage.getDuration(), TimeUnit.MILLISECONDS);
+        spawnManager.spawnWreckage(chr, wreckage);
     }
-    
 
     public void removeWreckage(Char chr, Wreckage wreckage) {
-        removeWreckage(chr, Arrays.asList(wreckage));
+        spawnManager.removeWreckage(chr, wreckage);
     }
 
     public void removeWreckage(Char chr, List<Wreckage> wreckageList) {
-        broadcastPacket(FieldPacket.delWreckage(chr, wreckageList));
-        for (Wreckage wreckage : wreckageList) {
-            removeLife(wreckage);
-        }
+        spawnManager.removeWreckage(chr, wreckageList);
     }
 
     public void spawnLife(Life life, Char onlyChar) {
-        addLife(life);
-        if (getChars().size() > 0) {
-            Char controller = null;
-            if (getLifeToControllers().containsKey(life)) {
-                controller = getLifeToControllers().get(life);
-            }
-            if (controller == null) {
-                setRandomController(life);
-            }
-            life.broadcastSpawnPacket(onlyChar);
-        }
+        spawnManager.spawnLife(life, onlyChar);
     }
 
-    private void setRandomController(Life life) {
+    void setRandomController(Life life) {
         // No chars -> set controller to null, so a controller will be assigned next time someone enters this field
         Char controller = null;
         if (getChars().size() > 0) {
@@ -687,12 +675,7 @@ public class Field {
 
 
     public void blowWeather(int itemID, String message, int seconds, byte[] packedAvatarLook) {
-        broadcastPacket(FieldPacket.removeBlowWeather());
-        this.weatherItemID = itemID;
-        this.weatherMsg = message;
-        this.weatherEndTime = System.currentTimeMillis() + 1000 * seconds;
-        this.weatherAvatarLook = packedAvatarLook;
-        broadcastPacket(FieldPacket.blowWeather(itemID, message, seconds, packedAvatarLook));
+        effectManager.blowWeather(itemID, message, seconds, packedAvatarLook);
     }
 
     private boolean hasUserFirstEnterScript() {
@@ -834,10 +817,7 @@ public class Field {
     }
 
     public void respawn(Mob mob) {
-        mob.setHp(mob.getMaxHp());
-        mob.setMp(mob.getMaxMp());
-        mob.setPosition(mob.getHomePosition().deepCopy());
-        spawnLife(mob, null);
+        spawnManager.respawn(mob);
     }
 
     public void broadcastPacket(OutPacket outPacket) {
@@ -902,7 +882,8 @@ public class Field {
         }
     }
 
-    private <T> Set<T> getLifesByClass(Class clazz) {
+    @SuppressWarnings("unchecked")
+    private <T extends Life> Set<T> getLifesByClass(Class<T> clazz) {
         return (Set<T>) getLifes().values().stream()
                 .filter(l -> l.getClass().equals(clazz))
                 .collect(Collectors.toSet());
@@ -1175,162 +1156,31 @@ public class Field {
     }
 
     public void drop(Drop drop, Position posFrom, Position posTo) {
-        drop(drop, posFrom, posTo, false);
+        dropManager.drop(drop, posFrom, posTo, false);
     }
 
-    /**
-     * Drops an item to this map, given a {@link Drop}, a starting Position and an ending Position.
-     * Immediately broadcasts the drop packet.
-     *
-     * @param drop              The Drop to drop.
-     * @param posFrom           The Position that the drop starts off from.
-     * @param posTo             The Position where the drop lands.
-     * @param ignoreTradability if the drop should ignore tradability (i.e., untradable items won't disappear)
-     */
     public void drop(Drop drop, Position posFrom, Position posTo, boolean ignoreTradability) {
-        boolean isTradable = true;
-        Item item = drop.getItem();
-        if (item != null) {
-            ItemInfo itemInfo = ItemData.getItemInfoByID(item.getItemId());
-            // must be tradable, and if not an equip, not a quest item
-            isTradable = ignoreTradability || (item.isTradable() && (ItemConstants.isEquip(item.getItemId()) || itemInfo != null && !itemInfo.isQuest()));
-        }
-        drop.setPosition(posTo);
-        if (isTradable) {
-            addLife(drop);
-            getLifeSchedules().put(drop,
-                    EventManager.addEvent(() -> removeDrop(drop.getObjectId(), 0, true, -1),
-                            GameConstants.DROP_REMAIN_ON_GROUND_TIME, TimeUnit.SECONDS));
-        } else {
-            drop.setObjectId(getNewObjectID()); // just so the client sees the drop
-        }
-        // Check for collision items such as exp orbs from combo kills
-       // if (!isTradable) {
-          //  broadcastPacket(DropPool.dropEnterField(drop, posFrom, 0, DropEnterType.Default));
-         if (drop.getItem() != null && ItemConstants.isCollisionLootItem(drop.getItem().getItemId())) {
-            broadcastPacket(DropPool.dropEnterFieldCollisionPickUp(drop, posFrom, 0));
-        } else {
-            for (Char chr : getChars()) {
-                if (!chr.getClient().getWorld().isReboot() || drop.canBePickedUpBy(chr)) {
-                    broadcastPacket(DropPool.dropEnterField(drop, posFrom, posTo, 0, drop.canBePickedUpBy(chr)));
-                }
-            }
-        }
-
+        dropManager.drop(drop, posFrom, posTo, ignoreTradability);
     }
 
-    /**
-     * Drops a {@link Drop} according to a given {@link DropInfo DropInfo}'s specification.
-     *
-     * @param dropInfo The
-     * @param posFrom  The Position that hte drop starts off from.
-     * @param posTo    The Position where the drop lands.
-     * @param ownerID  The owner's character ID. Will not be able to be picked up by Chars that are not the owner.
-     */
     public void drop(DropInfo dropInfo, Position posFrom, Position posTo, int ownerID, boolean explosive) {
-        int itemID = dropInfo.getItemID();
-        Item item;
-        Drop drop = new Drop(-1);
-        drop.setPosition(posTo);
-        drop.setOwnerID(ownerID);
-        drop.setExplosiveDrop(explosive);
-        Set<Integer> quests = new HashSet<>();
-        if (itemID != 0) {
-            item = ItemData.getItemDeepCopy(itemID, true);
-            if (item != null) {
-                item.setQuantity(dropInfo.getQuantity());
-                drop.setItem(item);
-                ItemInfo ii = ItemData.getItemInfoByID(itemID);
-                if (ii != null && ii.isQuest()) {
-                    quests = ii.getQuestIDs();
-                }
-            } else {
-                log.error("Was not able to find the item to drop! id = " + itemID);
-                return;
-            }
-        } else {
-            drop.setMoney(dropInfo.getMoney());
-        }
-        addLife(drop);
-        drop.setExpireTime(FileTime.fromDate(LocalDateTime.now().plusSeconds(GameConstants.DROP_REMOVE_OWNERSHIP_TIME)));
-        getLifeSchedules().put(drop,
-                EventManager.addEvent(() -> removeDrop(drop.getObjectId(), 0, true, -1),
-                        GameConstants.DROP_REMAIN_ON_GROUND_TIME, TimeUnit.SECONDS));
-        EventManager.addEvent(() -> drop.setOwnerID(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
-        for (Char chr : getChars()) {
-            if (chr.hasAnyQuestsInProgress(quests)) {
-                broadcastPacket(DropPool.dropEnterField(drop, posFrom, posTo, ownerID, drop.canBePickedUpBy(chr)));
-            }
-        }
+        dropManager.drop(dropInfo, posFrom, posTo, ownerID, explosive);
     }
 
-    /**
-     * Drops a Set of {@link DropInfo}s from a base Position.
-     *
-     * @param dropInfos The Set of DropInfos.
-     * @param position  The Position the initial Drop comes from.
-     * @param ownerID   The owner's character ID.
-     */
     public void drop(Set<DropInfo> dropInfos, Position position, int ownerID) {
-        drop(dropInfos, findFootHoldBelow(position), position, ownerID, 0, 0, false);
+        dropManager.drop(dropInfos, position, ownerID);
     }
 
     public void drop(Drop drop, Position position) {
-        drop(drop, position, false);
+        dropManager.drop(drop, position, false);
     }
 
-    /**
-     * Drops a {@link Drop} at a given Position. Calculates the Position that the Drop should land at.
-     *
-     * @param drop        The Drop that should be dropped.
-     * @param position    The Position it is dropped from.
-     * @param fromReactor if it quest item the item will disapear
-     */
     public void drop(Drop drop, Position position, boolean fromReactor) {
-        int x = position.getX();
-        Foothold fh = findFootHoldBelow(position);
-        Position posTo = fh != null ? new Position(x, fh.getYFromX(x)) : position.deepCopy();
-        drop(drop, position, posTo, fromReactor);
+        dropManager.drop(drop, position, fromReactor);
     }
 
-    /**
-     * Drops a Set of {@link DropInfo}s, locked to a specific {@link Foothold}.
-     * Not all drops are guaranteed to be dropped, as this method calculates whether or not a Drop should drop, according
-     * to the DropInfo's prop chance.
-     *
-     * @param dropInfos The Set of DropInfos that should be dropped.
-     * @param fh        The Foothold this Set of DropInfos is bound to.
-     * @param position  The Position the Drops originate from.
-     * @param ownerID   The ID of the owner of all drops.
-     * @param mesoRate  The added meso rate of the character.
-     * @param dropRate  The added drop rate of the character.
-     */
     public void drop(Set<DropInfo> dropInfos, Foothold fh, Position position, int ownerID, int mesoRate, int dropRate, boolean explosive) {
-        int x = position.getX();
-        int minX = fh == null ? position.getX() : fh.getX1();
-        int maxX = fh == null ? position.getX() : fh.getX2();
-        int diff = 0;
-        for (DropInfo dropInfo : dropInfos) {
-            if (dropInfo.willDrop(dropRate)) {
-                x = (x + diff) > maxX ? maxX - 10 : (x + diff) < minX ? minX + 10 : x + diff;
-                Position posTo;
-                if (fh == null) {
-                    posTo = position.deepCopy();
-                } else {
-                    posTo = new Position(x, fh.getYFromX(x));
-                }
-                // Copy the drop info for money, as we chance the amount that's in there.
-                // Not copying -> original dropinfo will keep increasing in mesos
-                DropInfo copy = null;
-                if (dropInfo.isMoney()) {
-                    copy = dropInfo.deepCopy();
-                    copy.setMoney((int) (dropInfo.getMoney() * (mesoRate / 100D)));
-                }
-                drop(copy != null ? copy : dropInfo, position, posTo, ownerID, explosive);
-                diff = diff < 0 ? Math.abs(diff - GameConstants.DROP_DIFF) : -(diff + GameConstants.DROP_DIFF);
-                dropInfo.generateNextDrop();
-            }
-        }
+        dropManager.drop(dropInfos, fh, position, ownerID, mesoRate, dropRate, explosive);
     }
 
     public List<Portal> getClosestPortal(Rect rect) {
@@ -1404,77 +1254,27 @@ public class Field {
     }
 
     public Mob spawnMobWithAppearType(int id, int x, int y, int appearType, int option) {
-        Mob mob = MobData.getMobDeepCopyById(id);
-        Position pos = new Position(x, y);
-        mob.setPosition(pos.deepCopy());
-        mob.setPrevPos(pos.deepCopy());
-        mob.setPosition(pos.deepCopy());
-        mob.setNotRespawnable(true);
-        mob.setAppearType((byte) appearType);
-        mob.setOption(option);
-        if (mob.getField() == null) {
-            mob.setField(this);
-        }
-        spawnLife(mob, null);
-        return mob;
+        return spawnManager.spawnMobWithAppearType(id, x, y, appearType, option);
     }
 
     public Mob spawnMob(int id, int x, int y, boolean respawnable, long hp) {
-        Mob mob = MobData.getMobDeepCopyById(id);
-        Position pos = new Position(x, y);
-        mob.setPosition(pos.deepCopy());
-        mob.setPrevPos(pos.deepCopy());
-        mob.setPosition(pos.deepCopy());
-        mob.setNotRespawnable(!respawnable);
-        if (hp > 0) {
-            mob.setHp(hp);
-            mob.setMaxHp(hp);
-        }
-        if (mob.getField() == null) {
-            mob.setField(this);
-        }
-        Foothold fh = findFootHoldBelow(pos);
-        mob.setCurFoodhold(fh);
-        mob.setHomeFoothold(fh);
-        spawnLife(mob, null);
-        if (MobConstants.isTimedDropMob(mob.getTemplateId())) {
-        mob.startDropItemSchedule();
-        }
-        return mob;
+        return spawnManager.spawnMob(id, x, y, respawnable, hp);
     }
 
-
     public void useRuneStone(Client c, RuneStone runeStone) {
-        Char chr = c.getChr();
-        chr.write(FieldPacket.runeActSuccess());
-        broadcastPacket(FieldPacket.runeStoneDisappear(chr.getId()));
-        chr.write(FieldPacket.runeStoneSkillAck(runeStone.getRuneType()));
-
-        setRuneStone(null);
-        this.lastRuneUsedTime = System.currentTimeMillis();
+        effectManager.useRuneStone(c, runeStone);
     }
 
     public void runeStoneHordeEffect(int mobRateMultiplier, int duration) {
-        double prevMobRate = getMobRate();
-        setMobRate(getMobRate() * mobRateMultiplier); //Temporary increase in mob Spawn
-        if (runeStoneHordesTimer != null && !runeStoneHordesTimer.isDone()) {
-            runeStoneHordesTimer.cancel(true);
-        }
-        runeStoneHordesTimer = EventManager.addEvent(() -> setMobRate(prevMobRate), duration, TimeUnit.SECONDS);
+        effectManager.runeStoneHordeEffect(mobRateMultiplier, duration);
     }
 
     public int getBonusExpByBurningFieldLevel() {
-        return burningFieldLevel * GameConstants.BURNING_FIELD_BONUS_EXP_MULTIPLIER_PER_LEVEL; //Burning Field Level * The GameConstant
+        return effectManager.getBonusExpByBurningFieldLevel();
     }
 
     public void showBurningLevel() {
-        String string = "#fn ExtraBold##fs26#          Burning Field has been destroyed.          ";
-        if (getBurningFieldLevel() > 0) {
-            string = "#fn ExtraBold##fs26#          Burning Stage " + getBurningFieldLevel() + ": " + getBonusExpByBurningFieldLevel() + "% Bonus EXP!          ";
-        }
-        Effect effect = Effect.createFieldTextEffect(string, 50, 2000, 4,
-                new Position(0, -200), 1, 4, TextEffectType.BurningField, 0, 0);
-        broadcastPacket(UserPacket.effect(effect));
+        effectManager.showBurningLevel();
     }
 
     public void increaseBurningLevel() {
@@ -1486,32 +1286,11 @@ public class Field {
     }
 
     public void startBurningFieldTimer() {
-        if (getMobGens().size() > 0
-                && getMobs().stream().mapToInt(m -> m.getForcedMobStat().getLevel()).min().orElse(0) >= GameConstants.BURNING_FIELD_MIN_MOB_LEVEL) {
-            setBurningFieldLevel(GameConstants.BURNING_FIELD_LEVEL_ON_START);
-            EventManager.addFixedRateEvent(this::changeBurningLevel, 0, GameConstants.BURNING_FIELD_TIMER, TimeUnit.MINUTES); //Every X minutes runs 'changeBurningLevel()'
-        }
+        effectManager.startBurningFieldTimer();
     }
 
     public void changeBurningLevel() {
-        boolean showMessage = true;
-
-        if (getBurningFieldLevel() <= 0) {
-            showMessage = false;
-        }
-
-        //If there are players on the map,  decrease the level  else  increase the level
-        if (getChars().size() > 0 && getBurningFieldLevel() > 0) {
-            decreaseBurningLevel();
-
-        } else if (getChars().size() <= 0 && getBurningFieldLevel() < GameConstants.BURNING_FIELD_MAX_LEVEL) {
-            increaseBurningLevel();
-            showMessage = true;
-        }
-
-        if (showMessage) {
-            showBurningLevel();
-        }
+        effectManager.changeBurningLevel();
     }
 
     public void setNextEliteSpawnTime(long nextEliteSpawnTime) {
@@ -1573,34 +1352,8 @@ public class Field {
         this.scriptManager = scriptManager;
     }
 
-    /**
-     * Goes through all MobGens, and spawns a Mob from it if allowed to do so. Only generates when there are Chars
-     * on this Field, or if the field is being initialized.
-     *
-     * @param init if this is the first time that this method is called.
-     */
     public void generateMobs(boolean init) {
-        if (init || getChars().size() > 0) {
-            boolean buffed = (this.getChannel() >= GameConstants.BUFFED_CH_ST && this.getChannel() <= GameConstants.BUFFED_CH_END);
-            int currentMobs = getMobs().size();
-            List<MobGen> shuffledMobs = new ArrayList<>(getMobGens());
-            // shuffle so the mobs spawn on random positions, instead of a fixed order
-            Collections.shuffle(shuffledMobs);
-            for (MobGen mg : shuffledMobs) {
-                if (mg.canSpawnOnField(this)) {                     
-                    mg.spawnMob(this, buffed);
-                    currentMobs++;    
-                    if ((getFieldLimit() & FieldOption.NoMobCapacityLimit.getVal()) == 0
-                            && currentMobs > getFixedMobCapacity()) {
-                        break;
-                    }
-                }
-            }
-        }
-        // No fixed rate to ensure kishin-ness keeps being checked
-        double kishinMultiplier = hasKishin() ? GameConstants.KISHIN_MOB_RATE_MULTIPLIER : 1;
-        EventManager.addEvent(() -> generateMobs(false),
-                (long) (GameConstants.BASE_MOB_RESPAWN_RATE / (getMobRate() * kishinMultiplier)));
+        spawnManager.generateMobs(init);
     }
 
     public int getMobCapacity() {
@@ -1829,20 +1582,7 @@ public class Field {
 
     // START OF ZAKUM FIELD RELATED METHODS ----------------------------------------------------------------------------
     public void toggleZakumPlatforms(boolean visible) {
-        String[] platformNames = new String[]{
-                "zdc1", "zdc2", "zdc3", "zdc4", "zdc5",
-                "zdc6", "zdc7", "zdc8", "zdc9", "zdc10",
-                "zdc11", "zdc12", "zdc13", "zdc14", "zdc15",
-                "zdc16", "zdc17", "zdc18"
-        };
-        Position[] platformPositions = new Position[]{
-                new Position(-464, -186), new Position(-388, -187), new Position(-310, -184), new Position(-514, -102), new Position(-439, -101), // 1-5
-                new Position(-362, -99), new Position(-512, -7), new Position(-436, -5), new Position(-358, -8), new Position(350, -189), // 6-10
-                new Position(426, -190), new Position(504, -187), new Position(384, -99), new Position(464, -102), new Position(546, -101), // 11-15
-                new Position(363, -7), new Position(439, -5), new Position(517, -8)                                  // 16-18
-        };
-        broadcastPacket(FieldPacket.footholdAppear(platformNames, visible, platformPositions));
-        zakPlatformsVisible = visible;
+        effectManager.toggleZakumPlatforms(visible);
     }
 
     public boolean isZakPlatformsVisible() {
@@ -1850,10 +1590,7 @@ public class Field {
     }
 
     public void clearDrops() {
-        Set<Drop> fieldDrops = new HashSet<Drop>(getDrops());
-        for (Drop drop : fieldDrops) {
-            removeDrop(drop.getObjectId(), 0, false, 0);
-        }
+        dropManager.clearDrops();
     }
 
     public void setNextZakArmSmash(long nextTime) {
@@ -1875,119 +1612,65 @@ public class Field {
     // END OF ZAKUM FIELD RELATED METHODS ------------------------------------------------------------------------------
 
     public void clearObtacle() {
-        broadcastPacket(FieldPacket.clearObtacle());
+        effectManager.clearObtacle();
     }
 
     public void createObstacleAtom(Field field, ObtacleAtomEnum oae, int key, int damage, int velocity, int amount, int proc) {
-        createObstacleAtom(field, oae, key, damage, velocity, 0, amount, proc);
+        effectManager.createObstacleAtom(oae, key, damage, velocity, amount, proc);
     }
 
     public void createObstacleAtom(Field field, ObtacleAtomEnum oae, int key, int damage, int velocity, int angle, int amount, int proc) {
-        int xLeft = field.getVrLeft();
-        int yTop = field.getVrTop();
-
-        ObtacleInRowInfo obtacleInRowInfo = new ObtacleInRowInfo(4, false, 5000, 0, 0, 0);
-        ObtacleRadianInfo obtacleRadianInfo = new ObtacleRadianInfo(4, 0, 0, 0, 0);
-        Set<ObtacleAtomInfo> obtacleAtomInfosSet = new HashSet<>();
-
-        for (int i = 0; i < amount; i++) {
-            if (Util.succeedProp(proc)) {
-                int randomX = new Random().nextInt(field.getWidth()) + xLeft;
-                Position position = new Position(randomX, yTop);
-                Foothold foothold = field.findFootHoldBelow(position);
-                if (foothold != null) {
-                    int footholdY = foothold.getYFromX(position.getX());
-                    int height = position.getY() - footholdY;
-                    height = height < 0 ? -height : height;
-
-                    obtacleAtomInfosSet.add(new ObtacleAtomInfo(oae.getType(), key, position, new Position(), oae.getHitBox(),
-                            damage, 0, 0, height, 0, velocity, height, angle));
-                }
-            }
-        }
-
-        broadcastPacket(FieldPacket.createObtacle(ObtacleAtomCreateType.NORMAL, obtacleInRowInfo, obtacleRadianInfo, obtacleAtomInfosSet));
+        effectManager.createObstacleAtom(oae, key, damage, velocity, angle, amount, proc);
     }
 
     public void createObstacleAtomLowestEndPoint(Field field, ObtacleAtomEnum oae, int key, int damage, int velocity, int angle, int amount, int proc) {
-        int xLeft = field.getVrLeft();
-        int yTop = field.getVrTop();
-
-        ObtacleInRowInfo obtacleInRowInfo = new ObtacleInRowInfo(4, false, 5000, 0, 0, 0);
-        ObtacleRadianInfo obtacleRadianInfo = new ObtacleRadianInfo(4, 0, 0, 0, 0);
-        Set<ObtacleAtomInfo> obtacleAtomInfosSet = new HashSet<>();
-
-        for (int i = 0; i < amount; i++) {
-            if (Util.succeedProp(proc)) {
-                int randomX = new Random().nextInt(field.getWidth()) + xLeft;
-                Position position = new Position(randomX, yTop);
-                Foothold foothold = field.findLowestFootHoldBelow(position);
-                if (foothold != null) {
-                    int footholdY = foothold.getYFromX(position.getX());
-                    int height = position.getY() - footholdY;
-                    height = height < 0 ? -height : height;
-
-                    obtacleAtomInfosSet.add(new ObtacleAtomInfo(oae.getType(), key, position, new Position(), oae.getHitBox(),
-                            damage, 0, 0, height, 0, velocity, height, angle));
-                }
-            }
-        }
-
-        broadcastPacket(FieldPacket.createObtacle(ObtacleAtomCreateType.NORMAL, obtacleInRowInfo, obtacleRadianInfo, obtacleAtomInfosSet));
+        effectManager.createObstacleAtomLowestEndPoint(oae, key, damage, velocity, angle, amount, proc);
     }
 
     public void createFallingCatcherAtCoords(String name, int index, int x, int y) {
-        ArrayList<Position> positions = new ArrayList<>();
-        positions.add(new Position(x, y));
-        broadcastPacket(FieldPacket.createFallingCatcher(new FallingCatcher(name, index, positions)));
+        effectManager.createFallingCatcherAtCoords(name, index, x, y);
     }
 
     public void createFallingCatcherOnCharacter(Char chr, String name, int index) {
-        ArrayList<Position> positions = new ArrayList<Position>();
-        positions.add(chr.getPosition());
-        chr.getField().broadcastPacket(FieldPacket.createFallingCatcher(new FallingCatcher(name, index, positions)));
+        effectManager.createFallingCatcherOnCharacter(chr, name, index);
     }
 
     public void dropItemsAlongLine(int[] items, int range, int startPosX, int startPosY, long msDelay) {
-        if (items.length <= 0) {
-            return; // avoid divide by zero error
-        }
-        Tuple<Foothold, Foothold> lrFh = getMinMaxNonWallFH();
-
-        range = Math.max(range, items.length);
-        int offset = Math.max((range / items.length) * 2, 3); // we want offset >= 3 || multiply by 2 so that the drops go past the start point
-        for (int i = 0; i < items.length; i++) {
-            int endPosX = startPosX - range + (offset * i);
-            endPosX = Math.max(endPosX, lrFh.getLeft().getX1()); // left is lowest x val
-            endPosX = Math.min(endPosX, lrFh.getRight().getX1()); // right is highest x val
-
-            if (items[i] <= 0) { // some fucker
-                continue;
-            }
-
-            if (items[i] > 999999) { // item
-                dropItem(items[i], startPosX, startPosY, endPosX, startPosY);
-            } else { // meso
-                dropMeso(items[i], startPosX, startPosY, endPosX, startPosY);
-            }
-
-            //Thread.sleep(Math.max(msDelay, 0)); // todo figure out this gay delay packet
-        }
+        dropManager.dropItemsAlongLine(items, range, startPosX, startPosY, msDelay);
     }
 
     public void dropItem(int itemId, int startPosX, int startPosY, int endPosX, int endPosY) {
-        Drop drop = new Drop(getNewObjectID());
-        drop.setItem(ItemData.getItemDeepCopy(itemId));
-        Position startPos = new Position(startPosX, startPosY);
-        Position endPos = new Position(endPosX, endPosY);
-        drop(drop, startPos, endPos, true);
+        dropManager.dropItem(itemId, startPosX, startPosY, endPosX, endPosY);
     }
 
     public void dropMeso(int mesoAmount, int startPosX, int startPosY, int endPosX, int endPosY) {
-        Drop drop = new Drop(getNewObjectID(), mesoAmount);
-        Position startPos = new Position(startPosX, startPosY);
-        Position endPos = new Position(endPosX, endPosY);
-        drop(drop, startPos, endPos, true);
+        dropManager.dropMeso(mesoAmount, startPosX, startPosY, endPosX, endPosY);
+    }
+
+    // --- Package-private setters for manager access ---
+
+    void setWeatherItemID(int weatherItemID) {
+        this.weatherItemID = weatherItemID;
+    }
+
+    void setWeatherMsg(String weatherMsg) {
+        this.weatherMsg = weatherMsg;
+    }
+
+    void setWeatherEndTime(long weatherEndTime) {
+        this.weatherEndTime = weatherEndTime;
+    }
+
+    void setWeatherAvatarLook(byte[] weatherAvatarLook) {
+        this.weatherAvatarLook = weatherAvatarLook;
+    }
+
+    void setLastRuneUsedTime(long lastRuneUsedTime) {
+        this.lastRuneUsedTime = lastRuneUsedTime;
+    }
+
+    void setZakPlatformsVisible(boolean visible) {
+        this.zakPlatformsVisible = visible;
     }
 
 }

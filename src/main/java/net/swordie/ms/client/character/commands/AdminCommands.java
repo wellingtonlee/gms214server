@@ -80,7 +80,7 @@ public class AdminCommands {
     @Command(names = {"help"}, description = "Displays all commands available to you.", requiredType = Player)
     public static class Help extends AdminCommand {
         public static void execute(Char chr, String[] args) {
-            for (Class clazz : AdminCommands.class.getClasses()) {
+            for (Class<?> clazz : AdminCommands.class.getClasses()) {
                 Command cmd = (Command) clazz.getAnnotation(Command.class);
                 if (chr.getUser().getAccountType().ordinal() >= cmd.requiredType().ordinal()) {
                     StringBuilder str = new StringBuilder(String.format("[%s] ", cmd.requiredType()));

@@ -46,13 +46,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created on 2/18/2017.
  */
-public class Server extends Properties {
+public class Server {
 
 	private static final Logger log = Logger.getLogger(Server.class);
 
 	private static final Server server = new Server();
 
-	public long upTime;
+	private long upTime;
 	public boolean MAINTENANCE_MODE = false;
 	public boolean MAINTENANCE_ACTIVE = false;
 
@@ -80,6 +80,7 @@ public class Server extends Properties {
 
 	private void init(String[] args) {
 		log.info("Starting server.");
+		this.upTime = System.currentTimeMillis();
 		long startNow = System.currentTimeMillis();
 		DatabaseManager.init();
 		log.info("Loaded Hibernate in " + (System.currentTimeMillis() - startNow) + "ms");
@@ -155,11 +156,13 @@ public class Server extends Properties {
 		String msg = "Server is shutting down in ";
 		String timeMsg = time + (!isShutdownFromCommand() ? " seconds." :" minutes. ");
 		String end = "Please log off safely before the server shuts down.";
-		getWorldById(1).broadcastPacket(UserLocal.chatMsg(ChatType.Notice2, "[Notice] " + msg + timeMsg + end));
-		getWorldById(1).broadcastPacket(UserLocal.addPopupSay(9010063, 10000,
-				"#e#b[Notice]#k#n " + msg + "#e#r" + timeMsg + "#k#n" + end, "FarmSE.img/boxResult"));
 		ServerConfig.SERVER_MSG = msg + timeMsg + end;
-		getWorldById(1).broadcastPacket(WvsContext.broadcastMsg(BroadcastMsg.slideNotice(ServerConfig.SERVER_MSG, true)));
+		for (World world : getWorlds()) {
+			world.broadcastPacket(UserLocal.chatMsg(ChatType.Notice2, "[Notice] " + msg + timeMsg + end));
+			world.broadcastPacket(UserLocal.addPopupSay(9010063, 10000,
+					"#e#b[Notice]#k#n " + msg + "#e#r" + timeMsg + "#k#n" + end, "FarmSE.img/boxResult"));
+			world.broadcastPacket(WvsContext.broadcastMsg(BroadcastMsg.slideNotice(ServerConfig.SERVER_MSG, true)));
+		}
 	}
 
 	private void checkAndCreateDat() {
@@ -168,7 +171,7 @@ public class Server extends Properties {
 		if (!exists) {
 			log.info("Dat files cannot be found (at least not the equip dats). All dats will now be generated. This may take a long while.");
 			Util.makeDirIfAbsent(ServerConstants.DAT_DIR);
-			for (Class c : DataClasses.datCreators) {
+			for (Class<?> c : DataClasses.datCreators) {
 				try {
 					Method m = c.getMethod("generateDatFiles");
 					m.invoke(null);
@@ -181,7 +184,7 @@ public class Server extends Properties {
 
 	public void loadWzData() throws IllegalAccessException, InvocationTargetException {
 		String datFolder = ServerConstants.DAT_DIR;
-		for (Class c : DataClasses.dataClasses) {
+		for (Class<?> c : DataClasses.dataClasses) {
 			for (Method method : c.getMethods()) {
 				String name;
 				Loader annotation = method.getAnnotation(Loader.class);
@@ -277,6 +280,10 @@ public class Server extends Properties {
 				log.info("Shutdown complete!");
 			}));
 		}
+	}
+
+	public long getUpTime() {
+		return upTime;
 	}
 
 	public boolean isOnline() {

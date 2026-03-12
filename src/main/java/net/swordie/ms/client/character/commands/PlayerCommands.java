@@ -44,7 +44,7 @@ public class PlayerCommands {
     public static class Help extends PlayerCommand {
 
         public static void execute(Char chr, String[] args) {
-            for (Class clazz : PlayerCommands.class.getClasses()) {
+            for (Class<?> clazz : PlayerCommands.class.getClasses()) {
                 Command cmd = (Command) clazz.getAnnotation(Command.class);
                 if (chr.getUser().getAccountType().ordinal() >= cmd.requiredType().ordinal()) {
                     StringBuilder str = new StringBuilder(String.format("[%s] ", cmd.requiredType().toString()));

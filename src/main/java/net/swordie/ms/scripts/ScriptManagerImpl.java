@@ -3309,7 +3309,7 @@ public class ScriptManagerImpl implements ScriptManager {
         if (chr.getUser().getAccountType() == AccountType.Admin) {
             return false;
         }
-        if (ServerConstants.RESTART_MINUTES > 0 && (Server.getInstance().MAINTENANCE_ACTIVE || Server.getInstance().MAINTENANCE_MODE || (System.currentTimeMillis() - Server.getInstance().upTime) >= (ServerConstants.RESTART_MINUTES - 30) * 60000L))
+        if (ServerConstants.RESTART_MINUTES > 0 && (Server.getInstance().MAINTENANCE_ACTIVE || Server.getInstance().MAINTENANCE_MODE || (System.currentTimeMillis() - Server.getInstance().getUpTime()) >= (ServerConstants.RESTART_MINUTES - 30) * 60000L))
             return true;
         if (chr.getParty() == null) {
             return true;
@@ -3323,7 +3323,7 @@ public class ScriptManagerImpl implements ScriptManager {
     }
 
     public String getTimeUntilEventReset(EventType type) {
-//        if (ServerConstants.RESTART_MINUTES > 0 && (Server.getInstance().MAINTENANCE_ACTIVE || Server.getInstance().MAINTENANCE_MODE || (System.currentTimeMillis() - Server.getInstance().upTime) >= ((ServerConstants.RESTART_MINUTES - 30) * 60000L)))
+//        if (ServerConstants.RESTART_MINUTES > 0 && (Server.getInstance().MAINTENANCE_ACTIVE || Server.getInstance().MAINTENANCE_MODE || (System.currentTimeMillis() - Server.getInstance().getUpTime()) >= ((ServerConstants.RESTART_MINUTES - 30) * 60000L)))
 //            return "server restarting soon";
         long msTillReset = getMillisecondsUntilEventReset(type);
         long days = TimeUnit.MILLISECONDS.toDays(msTillReset);
