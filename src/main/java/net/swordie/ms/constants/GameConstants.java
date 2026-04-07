@@ -136,6 +136,8 @@ public class GameConstants {
     public static final int RUNE_COOLDOWN_TIME = 0; // minutes
     public static final int THUNDER_RUNE_ATTACK_DELAY = 4; // seconds
     public static final int DARKNESS_RUNE_NUMBER_OF_ELITE_MOBS_SPAWNED = 3; // number of elites spawned when activating Rune of Darkness
+    public static final int RICHES_RUNE_DROP_COUNT = 15; // number of meso bags spawned by Rune of Riches
+    public static final int RICHES_RUNE_MESO_PER_DROP = 5000; // meso per drop from Rune of Riches
 
     // BurningField
     public static final int BURNING_FIELD_MAX_LEVEL = 10; //Maximum Burning Field Level

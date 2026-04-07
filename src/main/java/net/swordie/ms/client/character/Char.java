@@ -406,9 +406,9 @@ public class Char {
     private boolean skillCDBypass = false;
     // TODO Move this to CharacterStat?
     @Transient
-    private Map<BaseStat, Long> baseStats = new HashMap<>();
+    private Map<BaseStat, Long> baseStats = new ConcurrentHashMap<>();
     @Transient
-    private Map<BaseStat, Set<Integer>> nonAddBaseStats = new HashMap<>();
+    private Map<BaseStat, Set<Integer>> nonAddBaseStats = new ConcurrentHashMap<>();
     @Transient
     private boolean changingChannel;
     @Transient
@@ -437,7 +437,7 @@ public class Char {
     @Transient
     private String blessingOfEmpress = null;
     @Transient
-    private Map<Integer, Integer> hyperPsdSkillsCooltimeR = new HashMap<>();
+    private Map<Integer, Integer> hyperPsdSkillsCooltimeR = new ConcurrentHashMap<>();
     @Transient
     private boolean isInvincible;
     @Transient
@@ -453,11 +453,11 @@ public class Char {
     @Transient
     private List<NpcShopItem> buyBack = new ArrayList<>();
     @Transient
-    private Map<Integer, PsychicArea> psychicAreas = new HashMap<>();
+    private Map<Integer, PsychicArea> psychicAreas = new ConcurrentHashMap<>();
     @Transient
-    private Map<Integer, ForceAtom> forceAtoms = new HashMap<>();
+    private Map<Integer, ForceAtom> forceAtoms = new ConcurrentHashMap<>();
     @Transient
-    private Map<Integer, SecondAtom> secondAtoms = new HashMap<>();
+    private Map<Integer, SecondAtom> secondAtoms = new ConcurrentHashMap<>();
     @Transient
     private int forceAtomKeyCounter = 1;
     @Transient
@@ -465,19 +465,19 @@ public class Char {
     @Transient
     private Char copy;
     @Transient
-    private Map<Integer, AffectedArea> followAffectedAreas = new HashMap<>();
+    private Map<Integer, AffectedArea> followAffectedAreas = new ConcurrentHashMap<>();
     @Transient
     private boolean showDamageCalc;
     @Transient
-    private Map<Skill, WeaponType> psdWTBonus = new HashMap<>();
+    private Map<Skill, WeaponType> psdWTBonus = new ConcurrentHashMap<>();
     @Transient
     private boolean hide;
     @Transient
-    private Map<Integer, Integer> activeSetEffects = new HashMap<>();
+    private Map<Integer, Integer> activeSetEffects = new ConcurrentHashMap<>();
     @Transient
-    private Map<BaseStat, Integer> setBaseStats = new HashMap<>();
+    private Map<BaseStat, Integer> setBaseStats = new ConcurrentHashMap<>();
     @Transient
-    private Map<BaseStat, Set<Integer>> setNonAddBaseStats = new HashMap<>();
+    private Map<BaseStat, Set<Integer>> setNonAddBaseStats = new ConcurrentHashMap<>();
 
     @Transient
     private ScheduledFuture keyDownTimer;

@@ -90,9 +90,9 @@ public class Field {
     private EliteState eliteState;
     private int bossMobID;
     private boolean kishin;
-    private List<Integer> noRespawnList = new ArrayList<>();
-    private List<OpenGate> openGateList = new ArrayList<>();
-    private List<TownPortal> townPortalList = new ArrayList<>();
+    private List<Integer> noRespawnList = new CopyOnWriteArrayList<>();
+    private List<OpenGate> openGateList = new CopyOnWriteArrayList<>();
+    private List<TownPortal> townPortalList = new CopyOnWriteArrayList<>();
     private boolean isChannelField;
     private Map<Integer, List<String>> directionInfo;
     private Clock clock;
@@ -129,10 +129,10 @@ public class Field {
         this.footholds = new HashSet<>();
         this.lifes = new ConcurrentHashMap<>();
         this.chars = new CopyOnWriteArrayList<>();
-        this.lifeToControllers = new HashMap<>();
-        this.lifeSchedules = new HashMap<>();
-        this.directionInfo = new HashMap<>();
-        this.properties = new HashMap<>();
+        this.lifeToControllers = new ConcurrentHashMap<>();
+        this.lifeSchedules = new ConcurrentHashMap<>();
+        this.directionInfo = new ConcurrentHashMap<>();
+        this.properties = new ConcurrentHashMap<>();
         this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
         hasVrInfo = vrLeft != 0 || vrTop != 0 || vrRight != 0 || vrBottom != 0;
         this.dropManager = new FieldDropManager(this);
@@ -1121,13 +1121,10 @@ public class Field {
     }
 
     public void removeSchedule(Life life, boolean fromSchedule) {
-        if (!getLifeSchedules().containsKey(life)) {
-            return;
+        ScheduledFuture removed = getLifeSchedules().remove(life);
+        if (removed != null && !fromSchedule) {
+            removed.cancel(false);
         }
-        if (!fromSchedule) {
-            getLifeSchedules().get(life).cancel(false);
-        }
-        getLifeSchedules().remove(life);
     }
 
     public void checkMobInAffectedAreas(Mob mob) {

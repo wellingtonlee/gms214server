@@ -72,6 +72,12 @@ public class DatabaseManager {
 
 
     public static void init() {
+        // Externalize DB credentials: env vars override defaults
+        String defaultUrl = "jdbc:mysql://127.0.0.1:3306/MS214?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+        System.setProperty("DB_URL", System.getenv().getOrDefault("DB_URL", defaultUrl));
+        System.setProperty("DB_USER", System.getenv().getOrDefault("DB_USER", "MSServer"));
+        System.setProperty("DB_PASS", System.getenv().getOrDefault("DB_PASS", "yellowhammer"));
+
         Configuration configuration = new Configuration().configure();
         configuration.setProperty("autoReconnect", "true");
         Class[] dbClasses = new Class[]{
@@ -152,12 +158,16 @@ public class DatabaseManager {
      * Sends a simple query to the DB to ensure that the connection stays alive.
      */
     private static void sendHeartBeat() {
-        Session session = getSession();
-        Transaction t = session.beginTransaction();
-        Query q = session.createQuery("from Char where id = 1");
-        q.list();
-        t.commit();
-        session.close();
+        try (Session session = getSession()) {
+            Transaction t = session.beginTransaction();
+            try {
+                session.createNativeQuery("SELECT 1").getSingleResult();
+                t.commit();
+            } catch (Exception e) {
+                if (t.isActive()) t.rollback();
+                log.error("Heartbeat query failed", e);
+            }
+        }
         EventManager.addEvent(DatabaseManager::sendHeartBeat, KEEP_ALIVE_MS);
     }
 
@@ -171,16 +181,26 @@ public class DatabaseManager {
     public static void saveToDB(Object obj) {
         try (Session session = getSession()) {
             Transaction t = session.beginTransaction();
-            session.saveOrUpdate(obj);
-            t.commit();
+            try {
+                session.saveOrUpdate(obj);
+                t.commit();
+            } catch (Exception e) {
+                if (t.isActive()) t.rollback();
+                throw e;
+            }
         }
     }
 
     public static void deleteFromDB(Object obj) {
         try (Session session = getSession()) {
             Transaction t = session.beginTransaction();
-            session.delete(obj);
-            t.commit();
+            try {
+                session.delete(obj);
+                t.commit();
+            } catch (Exception e) {
+                if (t.isActive()) t.rollback();
+                throw e;
+            }
         }
     }
 
@@ -188,8 +208,13 @@ public class DatabaseManager {
         Object o;
         try (Session session = getSession()) {
             Transaction t = session.beginTransaction();
-            o = session.get(clazz, id);
-            t.commit();
+            try {
+                o = session.get(clazz, id);
+                t.commit();
+            } catch (Exception e) {
+                if (t.isActive()) t.rollback();
+                throw e;
+            }
         }
         return o;
     }
@@ -202,15 +227,20 @@ public class DatabaseManager {
         Object o = null;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
-            javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
-            query.setParameter("val", value);
-            List l = ((org.hibernate.query.Query) query).list();
-            if (l != null && l.size() > 0) {
-                o = l.get(0);
+            try {
+                // String.format for query, just to fill in the class
+                // Can't set the FROM clause with a parameter it seems
+                javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
+                query.setParameter("val", value);
+                List l = ((org.hibernate.query.Query) query).list();
+                if (l != null && l.size() > 0) {
+                    o = l.get(0);
+                }
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction.isActive()) transaction.rollback();
+                throw e;
             }
-            transaction.commit();
         }
         return o;
     }
@@ -219,11 +249,16 @@ public class DatabaseManager {
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
-            javax.persistence.Query query = session.createQuery(String.format("FROM %s", clazz.getName()));
-            list = ((org.hibernate.query.Query) query).list();
-            transaction.commit();
+            try {
+                // String.format for query, just to fill in the class
+                // Can't set the FROM clause with a parameter it seems
+                javax.persistence.Query query = session.createQuery(String.format("FROM %s", clazz.getName()));
+                list = ((org.hibernate.query.Query) query).list();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction.isActive()) transaction.rollback();
+                throw e;
+            }
         }
         return list;
     }
@@ -232,32 +267,36 @@ public class DatabaseManager {
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
-            javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
-            query.setParameter("val", value);
-            list = ((org.hibernate.query.Query) query).list();
-            transaction.commit();
+            try {
+                // String.format for query, just to fill in the class
+                // Can't set the FROM clause with a parameter it seems
+                javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
+                query.setParameter("val", value);
+                list = ((org.hibernate.query.Query) query).list();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction.isActive()) transaction.rollback();
+                throw e;
+            }
         }
         return list;
     }
 
     public static void modifyObjectFromDB(Class<?> clazz, int id, String columnName, Object value) {
-        Session session = null;
-        try {
-            session = getSession();
+        try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
-            javax.persistence.Query query = session.createQuery(String.format("UPDATE %s SET %s = :val WHERE id = :objid", clazz.getName(), columnName));
-            query.setParameter("objid", id);
-            query.setParameter("val", value);
-            query.executeUpdate();
-            transaction.commit();
-        } catch (Exception e) {
-            log.error("Failed to modify object in DB: " + clazz.getName() + " id=" + id + " column=" + columnName, e);
-        } finally {
-            if (session != null && session.isOpen()) session.close();
+            try {
+                // String.format for query, just to fill in the class
+                // Can't set the FROM clause with a parameter it seems
+                javax.persistence.Query query = session.createQuery(String.format("UPDATE %s SET %s = :val WHERE id = :objid", clazz.getName(), columnName));
+                query.setParameter("objid", id);
+                query.setParameter("val", value);
+                query.executeUpdate();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction.isActive()) transaction.rollback();
+                log.error("Failed to modify object in DB: " + clazz.getName() + " id=" + id + " column=" + columnName, e);
+            }
         }
     }
 

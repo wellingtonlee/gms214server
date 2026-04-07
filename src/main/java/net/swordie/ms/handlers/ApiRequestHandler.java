@@ -11,9 +11,13 @@ import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.AccountCreateResult;
 import net.swordie.ms.enums.AccountType;
 import net.swordie.ms.enums.ApiTokenResultType;
+import net.swordie.ms.client.Account;
 import net.swordie.ms.util.Util;
 import org.apache.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
+
+import java.security.SecureRandom;
+import java.util.Base64;
 
 /**
  * @author Sjonnie
@@ -46,19 +50,18 @@ public class ApiRequestHandler {
                 success = password.equals(dbPassword);
             }
         }
-        byte[] token = new byte[]{};
+        String tokenStr = "";
         if (success) {
             atrt = ApiTokenResultType.Success;
-            // Generate token
-            token = new byte[TOKEN_LENGTH];
-            for (int i = 0; i < token.length; i++) {
-                token[i] = (byte) Util.getRandom('0', '~');
-            }
-            Server.getInstance().addAuthToken(token, user.getId());
+            // Generate token with cryptographically secure random bytes
+            byte[] tokenBytes = new byte[TOKEN_LENGTH];
+            new SecureRandom().nextBytes(tokenBytes);
+            tokenStr = Base64.getEncoder().encodeToString(tokenBytes);
+            Server.getInstance().addAuthToken(tokenStr.getBytes(), user.getId());
         } else {
             atrt = ApiTokenResultType.InvalidUserPassCombination;
         }
-        c.write(ApiResponse.tokenRequestResult(atrt, new String(token)));
+        c.write(ApiResponse.tokenRequestResult(atrt, tokenStr));
     }
 
     public static void handleCreateAccountRequest(Client c, InPacket inPacket) {
@@ -68,9 +71,9 @@ public class ApiRequestHandler {
         AccountCreateResult acr = AccountCreateResult.Success;
         if (User.getFromDBByName(name) != null) {
             acr = AccountCreateResult.NameInUse;
-        } /*else if (Account.getFromDBByIp(c.getIP()) != null) {
+        } else if (Account.getFromDBByIp(c.getIP()) != null) {
             acr = AccountCreateResult.IpAlreadyHasAccount;
-        } */ else if (name.length() < 4 || pwd.length() < 4) {
+        } else if (name.length() < 4 || pwd.length() < 6) {
             acr = AccountCreateResult.Unknown;
         }
         if (acr == AccountCreateResult.Success) {

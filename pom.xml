@@ -93,7 +93,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId> <!-- Use 'netty-all' for 4.0 or above -->
-            <version>4.1.72.Final</version>
+            <version>4.1.100.Final</version>
             <scope>compile</scope>
         </dependency>
         <!-- hibernate dependencies that aren't automatically included in the jdk anymore -->
@@ -145,7 +145,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>26.0-jre</version>
+            <version>32.1.3-jre</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.nashorn</groupId>

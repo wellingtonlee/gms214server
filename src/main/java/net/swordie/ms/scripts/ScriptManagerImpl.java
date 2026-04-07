@@ -108,7 +108,9 @@ public class ScriptManagerImpl implements ScriptManager {
     private static final String INTENDED_NPE_MSG = "Intended NPE by forceful script stop.";
     private static final Logger log = Logger.getLogger(ScriptManagerImpl.class);
 
-    private static final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName(SCRIPT_ENGINE_NAME);
+    private static final ThreadLocal<ScriptEngine> scriptEngine = ThreadLocal.withInitial(
+        () -> new ScriptEngineManager().getEngineByName(SCRIPT_ENGINE_NAME)
+    );
 
     private Char chr;
     private Field field;
@@ -235,7 +237,7 @@ public class ScriptManagerImpl implements ScriptManager {
         resetParam();
         Bindings bindings = getBindingsByType(scriptType);
         if (bindings == null) {
-            bindings = scriptEngine.createBindings();
+            bindings = scriptEngine.get().createBindings();
             bindings.put("sm", this);
             bindings.put("chr", chr);
         }
@@ -288,7 +290,7 @@ public class ScriptManagerImpl implements ScriptManager {
         CompiledScript cs;
         getScriptInfoByType(scriptType).setFileDir(dir);
         StringBuilder script = new StringBuilder();
-        ScriptEngine se = scriptEngine;
+        ScriptEngine se = scriptEngine.get();
         Bindings bindings = getBindingsByType(scriptType);
         si.setInvocable((Invocable) se);
         try {

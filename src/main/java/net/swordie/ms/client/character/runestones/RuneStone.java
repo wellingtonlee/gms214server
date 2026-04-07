@@ -315,7 +315,17 @@ public class RuneStone {
     }
 
     private void applyRuneRiches(Char chr) {
-        chr.chatMessage(ChatType.BlackOnWhite, "This rune's effect has not yet been implemented.");
+        Field field = chr.getField();
+        Position charPos = chr.getPosition();
+        int dropCount = GameConstants.RICHES_RUNE_DROP_COUNT;
+        int mesoPerDrop = GameConstants.RICHES_RUNE_MESO_PER_DROP;
+        for (int i = 0; i < dropCount; i++) {
+            net.swordie.ms.life.drop.Drop drop = new net.swordie.ms.life.drop.Drop(-1, mesoPerDrop);
+            drop.setOwnerID(chr.getId());
+            int xOffset = -200 + (i * (400 / dropCount));
+            Position dropPos = new Position(charPos.getX() + xOffset, charPos.getY());
+            field.drop(drop, charPos, dropPos, true);
+        }
     }
 
     public EventType getEventType() {

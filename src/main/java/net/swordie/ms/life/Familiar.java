@@ -17,14 +17,19 @@ public class Familiar extends Life {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private int idk1;
+    @Column(name = "idk1")
+    private int templateID;
     private int familiarID;
     private String name;
-    private boolean idk2;
-    private short idk3;
+    @Column(name = "idk2")
+    private boolean locked;
+    @Column(name = "idk3")
+    private short level;
     private int fatigue;
-    private long idk4;
-    private long idk5;
+    @Column(name = "idk4")
+    private long createdAt;
+    @Column(name = "idk5")
+    private long lastSummonedAt;
     @Convert(converter = FileTimeConverter.class)
     private FileTime expiration = FileTime.fromType(FileTime.Type.MAX_TIME);
     private short vitality;
@@ -126,7 +131,7 @@ public class Familiar extends Life {
         }
     }
     public void encodeForRemote(OutPacket outPacket) {
-        outPacket.encodeInt(getIdk1()); // not 100% sure about these 3
+        outPacket.encodeInt(getTemplateID()); // not 100% sure about these 3
         outPacket.encodeInt(getFamiliarID());
         outPacket.encodeInt(getVitality());
         outPacket.encodeString(getName());
@@ -143,12 +148,12 @@ public class Familiar extends Life {
         this.id = id;
     }
 
-    public int getIdk1() {
-        return idk1;
+    public int getTemplateID() {
+        return templateID;
     }
 
-    public void setIdk1(int idk1) {
-        this.idk1 = idk1;
+    public void setTemplateID(int templateID) {
+        this.templateID = templateID;
     }
 
     public int getFamiliarID() {
@@ -168,20 +173,20 @@ public class Familiar extends Life {
         this.name = name;
     }
 
-    public boolean isIdk2() {
-        return idk2;
+    public boolean isLocked() {
+        return locked;
     }
 
-    public void setIdk2(boolean idk2) {
-        this.idk2 = idk2;
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 
-    public short getIdk3() {
-        return idk3;
+    public short getLevel() {
+        return level;
     }
 
-    public void setIdk3(short idk3) {
-        this.idk3 = idk3;
+    public void setLevel(short level) {
+        this.level = level;
     }
 
     public int getFatigue() {
@@ -192,20 +197,20 @@ public class Familiar extends Life {
         this.fatigue = fatigue;
     }
 
-    public long getIdk4() {
-        return idk4;
+    public long getCreatedAt() {
+        return createdAt;
     }
 
-    public void setIdk4(long idk4) {
-        this.idk4 = idk4;
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public long getIdk5() {
-        return idk5;
+    public long getLastSummonedAt() {
+        return lastSummonedAt;
     }
 
-    public void setIdk5(long idk5) {
-        this.idk5 = idk5;
+    public void setLastSummonedAt(long lastSummonedAt) {
+        this.lastSummonedAt = lastSummonedAt;
     }
 
     public FileTime getExpiration() {
